@@ -2,17 +2,17 @@
 
 #include <Arduino.h>
 
-#define HARDWARE_IMPLEMENTATION Model01
+#define HARDWARE_IMPLEMENTATION Raise
 #include "KeyboardioScanner.h"
 
 #define COLS 16
-#define ROWS 4
+#define ROWS 5
 
 #define CRGB(r,g,b) (cRGB){b, g, r}
 
-class Model01 {
+class Raise {
  public:
-  Model01(void);
+  Raise(void);
   void syncLeds(void);
   void setCrgbAt(byte row, byte col, cRGB color);
   void setCrgbAt(uint8_t i, cRGB crgb);
@@ -221,7 +221,7 @@ class Model01 {
     {r2c0, r2c1, r2c2, r2c3, r2c4, r2c5, r2c6, r2c7, r2c8, r2c9, r2c10, r2c11, r2c12, r2c13, r2c14, r2c15}, \
     {r3c0, r3c1, r3c2, r3c3, r3c4, r3c5, r3c6, r3c7, r3c8, r3c9, r3c10, r3c11, r3c12, r3c13, r3c14, r3c15}, \
   }
-
+/*
 #define KEYMAP(                                                                                     \
   r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,        r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
   r1c0, r1c1, r1c2, r1c3, r1c4, r1c5, r1c6,        r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, \
@@ -234,4 +234,34 @@ class Model01 {
     {r1c0, r1c1, r1c2, r1c3, r1c4, r1c5, r1c6, r1c7, r1c8, r1c9, r1c10, r1c11, r1c12, r1c13, r1c14, r1c15}, \
     {r2c0, r2c1, r2c2, r2c3, r2c4, r2c5, r2c6, r2c7, r2c8, r2c9, r2c10, r2c11, r2c12, r2c13, r2c14, r2c15}, \
     {r3c0, r3c1, r3c2, r3c3, r3c4, r3c5, r3c6, r3c7, r3c8, r3c9, r3c10, r3c11, r3c12, r3c13, r3c14, r3c15}, \
+  }
+*/
+#define KEYMAP_60(                                                                                     \
+  r0c7, r0c6, r0c5, r0c4, r0c3, r0c2, r0c1,         r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
+  r1c7, r1c6, r1c5, r1c4, r1c3, r1c2,               r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, r1c8, \
+  r2c7, r2c6, r2c5, r2c4, r2c3, r2c2,               r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
+  r3c7, r3c6, r3c5, r3c4, r3c3, r3c2, r3c1,                r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
+  r4c7, r4c6, r4c5, r4c4,             r4c3,         r4c11,               r4c12, r4c13, r4c14, r4c15, r4c8, \
+                          r4c2, r4c1,                      r4c10, r4c9)                      \
+  {                                                                                                 \
+    {XXX, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6, r0c7, XXX,  r0c9, r0c10, r0c11, r0c12, r0c13, r0c14, r0c15}, \
+    {XXX, XXX,  r1c2, r1c3, r1c4, r1c5, r1c6, r1c7, r1c8, r1c9, r1c10, r1c11, r1c12, r1c13, r1c14, r1c15}, \
+    {XXX, XXX,  r2c2, r2c3, r2c4, r2c5, r2c6, r2c7, XXX,  r2c9, r2c10, r2c11, r2c12, r2c13, r2c14, r2c15}, \
+    {XXX, r3c1, r3c2, r3c3, r3c4, r3c5, r3c6, r3c7, XXX,  XXX,  r3c10, r3c11, r3c12, r3c13, r3c14, r3c15}, \
+    {XXX, r4c1, r4c2, r4c3, r4c4, r4c5, r4c6, r4c7, r4c8, r4c9, r4c10, r4c11, r4c12, r4c13, r4c14, r4c15}, \
+  }
+
+#define KEYMAP(                                                                                     \
+  r0c7, r0c6, r0c5, r0c4, r0c3, r0c2, r0c1,         r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
+  r1c7, r1c6, r1c5, r1c4, r1c3, r1c2,               r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, \
+  r2c7, r2c6, r2c5, r2c4, r2c3, r2c2,               r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
+  r3c7, r3c6, r3c5, r3c4, r3c3, r3c2, r3c1,                r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
+  r4c7, r4c6, r4c5, r4c4,             r4c3,         r4c11,               r4c12, r4c13, r4c14, r4c15, \
+                          r4c2, r4c1,                      r4c10, r4c9)                      \
+  {                                                                                                 \
+    {XXX, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6, r0c7, XXX, r0c9, r0c10, r0c11, r0c12, r0c13, r0c14, r0c15}, \
+    {XXX, XXX,  r1c2, r1c3, r1c4, r1c5, r1c6, r1c7, XXX, r1c9, r1c10, r1c11, r1c12, r1c13, r1c14, r1c15}, \
+    {XXX, XXX,  r2c2, r2c3, r2c4, r2c5, r2c6, r2c7, XXX, r2c9, r2c10, r2c11, r2c12, r2c13, r2c14, r2c15}, \
+    {XXX, r3c1, r3c2, r3c3, r3c4, r3c5, r3c6, r3c7, XXX, XXX,  r3c10, r3c11, r3c12, r3c13, r3c14, r3c15}, \
+    {XXX, r4c1, r4c2, r4c3, r4c4, r4c5, r4c6, r4c7, XXX, r4c9, r4c10, r4c11, r4c12, r4c13, r4c14, r4c15}, \
   }

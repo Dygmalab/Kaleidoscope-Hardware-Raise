@@ -2,11 +2,11 @@
 #include <KeyboardioHID.h>
 #include <avr/wdt.h>
 
-KeyboardioScanner Model01::leftHand(0);
-KeyboardioScanner Model01::rightHand(3);
-bool Model01::isLEDChanged = true;
-keydata_t Model01::leftHandMask;
-keydata_t Model01::rightHandMask;
+KeyboardioScanner Raise::leftHand(0);
+KeyboardioScanner Raise::rightHand(3);
+bool Raise::isLEDChanged = true;
+keydata_t Raise::leftHandMask;
+keydata_t Raise::rightHandMask;
 
 static constexpr uint8_t key_led_map[4][16] = {
   {3, 4, 11, 12, 19, 20, 26, 27,     36, 37, 43, 44, 51, 52, 59, 60},
@@ -15,11 +15,11 @@ static constexpr uint8_t key_led_map[4][16] = {
   {0, 7, 8, 15, 16, 23, 31, 30,     33, 32, 40, 47, 48, 55, 56, 63},
 };
 
-Model01::Model01(void) {
+Raise::Raise(void) {
 
 }
 
-void Model01::enableScannerPower(void) {
+void Raise::enableScannerPower(void) {
   // PC7
   //pinMode(13, OUTPUT);
   //digitalWrite(13, HIGH);
@@ -32,7 +32,7 @@ void Model01::enableScannerPower(void) {
 // This lets the keyboard pull up to 1.6 amps from
 // the host. That violates the USB spec. But it sure
 // is pretty looking
-void Model01::enableHighPowerLeds(void) {
+void Raise::enableHighPowerLeds(void) {
   // PE6
   //    pinMode(7, OUTPUT);
   //    digitalWrite(7, LOW);
@@ -47,7 +47,7 @@ void Model01::enableHighPowerLeds(void) {
 
 }
 
-void Model01::setup(void) {
+void Raise::setup(void) {
   wdt_disable();
   delay(100);
   enableScannerPower();
@@ -59,11 +59,12 @@ void Model01::setup(void) {
   leftHandState.all = 0;
   rightHandState.all = 0;
 
-  TWBR = 12; // This is 400mhz, which is the fastest we can drive the ATTiny
+  TWBR = 72; // This is 100khz, which is the fastest we can drive the ATTiny
+  //TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
 
 
-void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
+void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
   if (i < 32) {
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
@@ -81,15 +82,15 @@ void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
   }
 }
 
-void Model01::setCrgbAt(byte row, byte col, cRGB color) {
+void Raise::setCrgbAt(byte row, byte col, cRGB color) {
   setCrgbAt(key_led_map[row][col], color);
 }
 
-uint8_t Model01::getLedIndex(byte row, byte col) {
+uint8_t Raise::getLedIndex(byte row, byte col) {
   return key_led_map[row][col];
 }
 
-cRGB Model01::getCrgbAt(uint8_t i) {
+cRGB Raise::getCrgbAt(uint8_t i) {
   if (i < 32) {
     return leftHand.ledData.leds[i];
   } else if (i < 64) {
@@ -99,7 +100,7 @@ cRGB Model01::getCrgbAt(uint8_t i) {
   }
 }
 
-void Model01::syncLeds() {
+void Raise::syncLeds() {
   if (!isLEDChanged)
     return;
 
@@ -118,7 +119,7 @@ void Model01::syncLeds() {
   isLEDChanged = false;
 }
 
-boolean Model01::ledPowerFault() {
+boolean Raise::ledPowerFault() {
   if (PINB & _BV(4)) {
     return true;
   } else {
@@ -127,6 +128,7 @@ boolean Model01::ledPowerFault() {
 }
 
 void debugKeyswitchEvent(keydata_t state, keydata_t previousState, uint8_t keynum, uint8_t row, uint8_t col) {
+/*
   if (bitRead(state.all, keynum) != bitRead(previousState.all, keynum)) {
     Serial.print("Looking at row ");
     Serial.print(row);
@@ -140,10 +142,11 @@ void debugKeyswitchEvent(keydata_t state, keydata_t previousState, uint8_t keynu
     Serial.print(bitRead(state.all, keynum));
     Serial.println();
   }
+  */
 }
 
 
-void Model01::readMatrix() {
+void Raise::readMatrix() {
   //scan the Keyboard matrix looking for connections
   previousLeftHandState = leftHandState;
   previousRightHandState = rightHandState;
@@ -159,8 +162,8 @@ void Model01::readMatrix() {
 
 
 
-void Model01::actOnMatrixScan() {
-  for (byte row = 0; row < 4; row++) {
+void Raise::actOnMatrixScan() {
+  for (byte row = 0; row < 5; row++) {
     for (byte col = 0; col < 8; col++) {
 
       uint8_t keynum = (row * 8) + (col);
@@ -178,12 +181,12 @@ void Model01::actOnMatrixScan() {
 }
 
 
-void Model01::scanMatrix() {
+void Raise::scanMatrix() {
   readMatrix();
   actOnMatrixScan();
 }
 
-void Model01::rebootBootloader() {
+void Raise::rebootBootloader() {
   // Set the magic bits to get a Caterina-based device
   // to reboot into the bootloader and stay there, rather
   // than run move onward
@@ -204,7 +207,7 @@ void Model01::rebootBootloader() {
   // happens before the watchdog reboots us
 }
 
-void Model01::maskKey(byte row, byte col) {
+void Raise::maskKey(byte row, byte col) {
   if (row >= ROWS || col >= COLS)
     return;
 
@@ -215,7 +218,7 @@ void Model01::maskKey(byte row, byte col) {
   }
 }
 
-void Model01::unMaskKey(byte row, byte col) {
+void Raise::unMaskKey(byte row, byte col) {
   if (row >= ROWS || col >= COLS)
     return;
 
@@ -226,7 +229,7 @@ void Model01::unMaskKey(byte row, byte col) {
   }
 }
 
-bool Model01::isKeyMasked(byte row, byte col) {
+bool Raise::isKeyMasked(byte row, byte col) {
   if (row >= ROWS || col >= COLS)
     return false;
 
@@ -237,7 +240,7 @@ bool Model01::isKeyMasked(byte row, byte col) {
   }
 }
 
-void Model01::maskHeldKeys(void) {
+void Raise::maskHeldKeys(void) {
   memcpy(leftHandMask.rows, leftHandState.rows, sizeof(leftHandMask));
   memcpy(rightHandMask.rows, rightHandState.rows, sizeof(rightHandMask));
 }
