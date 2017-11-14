@@ -9,10 +9,10 @@ keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
 
 static constexpr uint8_t key_led_map[5][16] = {
-  {6,  5,  4,  3,  2,  1,  0,  0,  0,  32, 33, 34, 35, 36, 37, 38 },
-  {12, 11, 10, 9,  8,  7,  0,  0,  39, 40, 41, 42, 43, 44, 45, 46 },
-  {18, 17, 16, 15, 14, 13, 0,  0,  47, 48, 49, 50, 51, 52, 53, 0  },
-  {19, 20, 21, 22, 23, 24, 25, 0,  54, 55, 56, 57, 58, 59, 0,  0  },
+  {0,  1,  2,  3,  4,  5,  6,  0,  0,  32, 33, 34, 35, 36, 37, 38 },
+  {7,  8,  9,  10, 11, 12, 0,  0,  39, 40, 41, 42, 43, 44, 45, 46 },
+  {13, 14, 15, 16, 17, 18, 0,  0,  47, 48, 49, 50, 51, 52, 53, 0  },
+  {19, 20, 21, 22, 23, 24, 0,  0,  54, 55, 56, 57, 58, 59, 0,  0  },
   {25, 26, 27, 28, 29, 30, 31, 0,  60, 61, 62, 63, 64, 65, 66, 67 }
 };
 
@@ -192,7 +192,7 @@ void Raise::actOnMatrixScan() {
 
       uint8_t keyState = (bitRead(previousLeftHandState.all, keynum) << 0) |
                          (bitRead(leftHandState.all, keynum) << 1);
-      handleKeyswitchEvent(Key_NoKey, row, col, keyState);
+      handleKeyswitchEvent(Key_NoKey, row,  col, keyState);
 
       keyState = (bitRead(previousRightHandState.all, keynum) << 0) |
                  (bitRead(rightHandState.all, keynum) << 1);
