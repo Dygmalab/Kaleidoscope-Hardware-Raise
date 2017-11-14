@@ -130,7 +130,11 @@ class Raise {
 #define R3C15 SCANBIT(3, 7)
 
 
-#define LED_COUNT 64
+#define LEFT_UNDERGLOW_LEDS 27
+#define RIGHT_UNDERGLOW_LEDS 27
+#define LEFT_KEYS 32
+#define RIGHT_KEYS 36
+#define LED_COUNT LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS + LEFT_KEYS + RIGHT_KEYS // total across both halves
 
 
 #define LED_PGDN 0

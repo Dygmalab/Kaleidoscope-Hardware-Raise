@@ -8,11 +8,17 @@ bool Raise::isLEDChanged = true;
 keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
 
-static constexpr uint8_t key_led_map[4][16] = {
-  {3, 4, 11, 12, 19, 20, 26, 27,     36, 37, 43, 44, 51, 52, 59, 60},
-  {2, 5, 10, 13, 18, 21, 25, 28,     35, 38, 42, 45, 50, 53, 58, 61},
-  {1, 6, 9, 14, 17, 22, 24, 29,     34, 39, 41, 46, 49, 54, 57, 62},
-  {0, 7, 8, 15, 16, 23, 31, 30,     33, 32, 40, 47, 48, 55, 56, 63},
+static constexpr uint8_t key_led_map[5][16] = {
+  {6,  5,  4,  3,  2,  1,  0,  0,  0,  32, 33, 34, 35, 36, 37, 38 },
+  {12, 11, 10, 9,  8,  7,  0,  0,  39, 40, 41, 42, 43, 44, 45, 46 },
+  {18, 17, 16, 15, 14, 13, 0,  0,  47, 48, 49, 50, 51, 52, 53, 0  },
+  {19, 20, 21, 22, 23, 24, 25, 0,  54, 55, 56, 57, 58, 59, 0,  0  },
+  {25, 26, 27, 28, 29, 30, 31, 0,  60, 61, 62, 63, 64, 65, 66, 67 }
+};
+
+static constexpr uint8_t underglow_led_map[2][28] = {
+    { 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59 },
+    { 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98 },
 };
 
 Raise::Raise(void) {
@@ -64,17 +70,34 @@ void Raise::setup(void) {
 }
 
 
+/*
+#define LEFT_UNDERGLOW_LEDS 28
+#define RIGHT_UNDERGLOW_LEDS 28
+#define LEFT_KEYS 32
+#define RIGHT_KEYS 36
+*/
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
-  if (i < 32) {
+  if (i < LEFT_KEYS) {  // left keys
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
 
     leftHand.ledData.leds[i] = crgb;
-  } else if (i < 64) {
+  } else if (i < LEFT_KEYS + RIGHT_KEYS) { // right keys
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
 
-    rightHand.ledData.leds[i - 32] = crgb;
+    rightHand.ledData.leds[i - LEFT_KEYS] = crgb;
+
+  } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS) { // left under
+    cRGB oldColor = getCrgbAt(i);
+    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
+
+    leftHand.ledData.leds[i - RIGHT_KEYS] = crgb;
+     
+  } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS) { // right under
+    cRGB oldColor = getCrgbAt(i);
+    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
+    rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] = crgb;
   } else {
     // TODO(anyone):
     // how do we want to handle debugging assertions about crazy user
@@ -91,10 +114,14 @@ uint8_t Raise::getLedIndex(byte row, byte col) {
 }
 
 cRGB Raise::getCrgbAt(uint8_t i) {
-  if (i < 32) {
+  if (i < LEFT_KEYS) {
     return leftHand.ledData.leds[i];
-  } else if (i < 64) {
-    return rightHand.ledData.leds[i - 32] ;
+  } else if (i < LEFT_KEYS + RIGHT_KEYS) {
+    return rightHand.ledData.leds[i - LEFT_KEYS] ;
+  } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS) {
+    return leftHand.ledData.leds[i - RIGHT_KEYS] ;
+  } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS ) {
+    return rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] ;
   } else {
     return {0, 0, 0};
   }
@@ -104,17 +131,12 @@ void Raise::syncLeds() {
   if (!isLEDChanged)
     return;
 
-  leftHand.sendLEDData();
-  rightHand.sendLEDData();
+  for(int i = 0; i < LED_BANKS; i ++)
+  {
+      leftHand.sendLEDData();
+      rightHand.sendLEDData();
+  }
 
-  leftHand.sendLEDData();
-  rightHand.sendLEDData();
-
-  leftHand.sendLEDData();
-  rightHand.sendLEDData();
-
-  leftHand.sendLEDData();
-  rightHand.sendLEDData();
 
   isLEDChanged = false;
 }
@@ -170,7 +192,7 @@ void Raise::actOnMatrixScan() {
 
       uint8_t keyState = (bitRead(previousLeftHandState.all, keynum) << 0) |
                          (bitRead(leftHandState.all, keynum) << 1);
-      handleKeyswitchEvent(Key_NoKey, row, 7 - col, keyState);
+      handleKeyswitchEvent(Key_NoKey, row, col, keyState);
 
       keyState = (bitRead(previousRightHandState.all, keynum) << 0) |
                  (bitRead(rightHandState.all, keynum) << 1);
