@@ -8,12 +8,24 @@ bool Raise::isLEDChanged = true;
 keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
 
+#define XX 0xFF // off
+
+/*
+#define KEYMAP_60(                                                                                     \
+  r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,         r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
+  r1c0, r1c1, r1c2, r1c3, r1c4, r1c5,               r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, r1c8, \
+  r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,               r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
+  r3c0, r3c1, r3c2, r3c3, r3c4, r3c5,                      r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
+  r4c0, r4c1, r4c2, r4c3,             r4c4,         r4c11,               r4c12, r4c13, r4c14, r4c15, r4c8, \
+                          r4c5, r4c6,                      r4c10, r4c9)                      \
+  */
 static constexpr uint8_t key_led_map[5][16] = {
-  {0,  1,  2,  3,  4,  5,  6,  0,  0,  32, 33, 34, 35, 36, 37, 38 },
-  {7,  8,  9,  10, 11, 12, 0,  0,  39, 40, 41, 42, 43, 44, 45, 46 },
-  {13, 14, 15, 16, 17, 18, 0,  0,  47, 48, 49, 50, 51, 52, 53, 0  },
-  {19, 20, 21, 22, 23, 24, 0,  0,  54, 55, 56, 57, 58, 59, 0,  0  },
-  {25, 26, 27, 28, 29, 30, 31, 0,  60, 61, 62, 63, 64, 65, 66, 67 }
+  {0,  1,  2,  3,  4,  5,  6,  XX,   XX, 32, 33, 34, 35, 36, 37, 38 }, //14
+  {7,  8,  9,  10, 11, 12, XX, XX,   46, 39, 40, 41, 42, 43, 44, 45 }, //14
+  {13, 14, 15, 16, 17, 18, XX, XX,   XX, 47, 48, 49, 50, 51, 52, 53 }, //13
+  {19, 20, 21, 22, 23, 24, XX, XX,   XX, XX, 54, 55, 56, 57, 58, 59 }, //12
+  {25, 26, 27, 28, 29, 30, 31, XX,    65, 66, 67, 60, 61, 62, 63, 64 }, //15
+  //{25, 26, 27, 28, 29, 30, 31, XX,   60, 61, 62, 63, 64, 65, 66, 67 }, //15
 };
 
 static constexpr uint8_t underglow_led_map[2][28] = {
@@ -71,10 +83,12 @@ void Raise::setup(void) {
 
 
 /*
-#define LEFT_UNDERGLOW_LEDS 28
-#define RIGHT_UNDERGLOW_LEDS 28
+
 #define LEFT_KEYS 32
+#define LEFT_UNDERGLOW_LEDS 14 + 16 + 2
+
 #define RIGHT_KEYS 36
+#define RIGHT_UNDERGLOW_LEDS 16 + 16 + 2
 */
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
   if (i < LEFT_KEYS) {  // left keys
@@ -98,6 +112,8 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
     rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] = crgb;
+  } else if (i == XX ) {
+    // do nothing with missing leds
   } else {
     // TODO(anyone):
     // how do we want to handle debugging assertions about crazy user

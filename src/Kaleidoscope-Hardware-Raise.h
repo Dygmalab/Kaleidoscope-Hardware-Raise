@@ -130,10 +130,18 @@ class Raise {
 #define R3C15 SCANBIT(3, 7)
 
 
-#define LEFT_UNDERGLOW_LEDS 27
-#define RIGHT_UNDERGLOW_LEDS 27
+#define LEFT_PALM 14
+#define LEFT_LP_UNDER 2
+#define LEFT_KEY_UNDER 16
 #define LEFT_KEYS 32
+
+#define RIGHT_PALM 16
+#define RIGHT_LP_UNDER 2
+#define RIGHT_KEY_UNDER 16 // would be 17 underglow under the keys, but taken one for the missing key light
 #define RIGHT_KEYS 36
+
+#define LEFT_UNDERGLOW_LEDS LEFT_KEY_UNDER + LEFT_PALM + LEFT_LP_UNDER
+#define RIGHT_UNDERGLOW_LEDS RIGHT_KEY_UNDER + RIGHT_PALM + RIGHT_LP_UNDER
 #define LED_COUNT LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS + LEFT_KEYS + RIGHT_KEYS // total across both halves
 
 
@@ -246,7 +254,7 @@ class Raise {
   r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,               r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
   r3c0, r3c1, r3c2, r3c3, r3c4, r3c5,                      r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
   r4c0, r4c1, r4c2, r4c3,             r4c4,         r4c11,               r4c12, r4c13, r4c14, r4c15, r4c8, \
-                          r4c5, r4c6,                      r4c10, r4c9)                      \
+                          r4c5, r4c6,                      r4c9, r4c10)                      \
   {                                                                                                 \
     {r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6, XXX , XXX,  r0c9, r0c10, r0c11, r0c12, r0c13, r0c14, r0c15}, \
     {r1c0, r1c1, r1c2, r1c3, r1c4, r1c5, XXX , XXX , r1c8, r1c9, r1c10, r1c11, r1c12, r1c13, r1c14, r1c15}, \
