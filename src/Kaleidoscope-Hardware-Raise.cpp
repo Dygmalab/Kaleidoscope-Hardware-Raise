@@ -25,7 +25,6 @@ static constexpr uint8_t key_led_map[5][16] = {
   {13, 14, 15, 16, 17, 18, XX, XX,   XX, 47, 48, 49, 50, 51, 52, 53 }, //13
   {19, 20, 21, 22, 23, 24, XX, XX,   XX, XX, 54, 55, 56, 57, 58, 59 }, //12
   {25, 26, 27, 28, 29, 30, 31, XX,    65, 66, 67, 60, 61, 62, 63, 64 }, //15
-  //{25, 26, 27, 28, 29, 30, 31, XX,   60, 61, 62, 63, 64, 65, 66, 67 }, //15
 };
 
 static constexpr uint8_t underglow_led_map[2][28] = {
@@ -81,7 +80,26 @@ void Raise::setup(void) {
   //TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
 
-
+float comps_l[LEFT_UNDERGLOW_LEDS] =  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // 32 in total
+float comps_r[RIGHT_UNDERGLOW_LEDS] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // 34 in total
+cRGB comp_l(cRGB crgb, int led_num)
+{
+    if(comps_l[led_num] == 1)
+        return crgb;
+    crgb.r *= comps_l[led_num];
+    crgb.g *= comps_l[led_num];
+    crgb.b *= comps_l[led_num];
+    return crgb;
+}
+cRGB comp_r(cRGB crgb, int led_num)
+{
+    if(comps_l[led_num] == 1)
+        return crgb;
+    crgb.r *= comps_r[led_num];
+    crgb.g *= comps_r[led_num];
+    crgb.b *= comps_r[led_num];
+    return crgb;
+}
 /*
 
 #define LEFT_KEYS 32
@@ -106,12 +124,12 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
 
-    leftHand.ledData.leds[i - RIGHT_KEYS] = crgb;
+    leftHand.ledData.leds[i - RIGHT_KEYS] = comp_l(crgb, i - (LEFT_KEYS + RIGHT_KEYS));
      
   } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS) { // right under
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
-    rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] = crgb;
+    rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] = comp_r(crgb, i - (LEFT_KEYS + RIGHT_KEYS +  LEFT_UNDERGLOW_LEDS));
   } else if (i == XX ) {
     // do nothing with missing leds
   } else {
