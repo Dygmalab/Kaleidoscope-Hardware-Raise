@@ -136,12 +136,12 @@ class Raise {
 #define LEFT_KEYS 32
 
 #define RIGHT_PALM 16
-#define RIGHT_LP_UNDER 2
-#define RIGHT_KEY_UNDER 16 // would be 17 underglow under the keys, but taken one for the missing key light
+#define RIGHT_LP_UNDER 1// would be 2 underglow, but taken one for the missing key light
+#define RIGHT_KEY_UNDER 17 
 #define RIGHT_KEYS 36
 
-#define LEFT_UNDERGLOW_LEDS LEFT_KEY_UNDER + LEFT_PALM + LEFT_LP_UNDER
-#define RIGHT_UNDERGLOW_LEDS RIGHT_KEY_UNDER + RIGHT_PALM + RIGHT_LP_UNDER
+#define LEFT_UNDERGLOW_LEDS LEFT_KEY_UNDER + LEFT_PALM + LEFT_LP_UNDER  // 32 in total
+#define RIGHT_UNDERGLOW_LEDS RIGHT_KEY_UNDER + RIGHT_PALM + RIGHT_LP_UNDER // 34 in total
 #define LED_COUNT LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS + LEFT_KEYS + RIGHT_KEYS // total across both halves
 
 
