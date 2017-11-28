@@ -8,7 +8,7 @@
 #define COLS 16
 #define ROWS 5
 
-#define CRGB(r,g,b) (cRGB){b, g, r}
+#define CRGB(r,g,b) (cRGB){r, g, b}
 
 class Raise {
  public:
