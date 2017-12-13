@@ -76,8 +76,8 @@ void Raise::setup(void) {
   leftHandState.all = 0;
   rightHandState.all = 0;
 
-  TWBR = 72; // This is 100khz, which is the fastest we can drive the ATTiny
-  //TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
+  //TWBR = 72; // This is 100khz, 
+  TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
 
 float comps_l[LEFT_UNDERGLOW_LEDS] =  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // 32 in total
