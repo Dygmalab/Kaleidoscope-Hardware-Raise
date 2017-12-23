@@ -79,7 +79,7 @@ void Raise::setup(void) {
   //TWBR = 72; // This is 100khz, 
   TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
-
+/*
 float comps_l[LEFT_UNDERGLOW_LEDS] =  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // 32 in total
 float comps_r[RIGHT_UNDERGLOW_LEDS] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // 34 in total
 cRGB comp_l(cRGB crgb, int led_num)
@@ -100,6 +100,7 @@ cRGB comp_r(cRGB crgb, int led_num)
     crgb.b *= comps_r[led_num];
     return crgb;
 }
+*/
 /*
 
 #define LEFT_KEYS 32
@@ -124,12 +125,13 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
 
-    leftHand.ledData.leds[i - RIGHT_KEYS] = comp_l(crgb, i - (LEFT_KEYS + RIGHT_KEYS));
+    leftHand.ledData.leds[i - RIGHT_KEYS] = crgb;
+    //leftHand.ledData.leds[i - RIGHT_KEYS] = comp_l(crgb, i - (LEFT_KEYS + RIGHT_KEYS));
      
   } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS) { // right under
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
-    rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] = comp_r(crgb, i - (LEFT_KEYS + RIGHT_KEYS +  LEFT_UNDERGLOW_LEDS));
+    rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] = crgb;
   } else if (i == XX ) {
     // do nothing with missing leds
   } else {
