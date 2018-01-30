@@ -1,6 +1,6 @@
 #include <Kaleidoscope.h>
 #include <KeyboardioHID.h>
-#include <avr/wdt.h>
+//#include <avr/wdt.h>
 
 KeyboardioScanner Raise::leftHand(0);
 KeyboardioScanner Raise::rightHand(3);
@@ -41,8 +41,8 @@ void Raise::enableScannerPower(void) {
   //pinMode(13, OUTPUT);
   //digitalWrite(13, HIGH);
   // Turn on power to the LED net
-  DDRC |= _BV(7);
-  PORTC |= _BV(7);
+  //DDRC |= _BV(7);
+ // PORTC |= _BV(7);
 
 }
 
@@ -53,19 +53,19 @@ void Raise::enableHighPowerLeds(void) {
   // PE6
   //    pinMode(7, OUTPUT);
   //    digitalWrite(7, LOW);
-  DDRE |= _BV(6);
-  PORTE &= ~_BV(6);
+  //DDRE |= _BV(6);
+  //PORTE &= ~_BV(6);
 
   // Set B4, the overcurrent check to an input with an internal pull-up
-  DDRB &= ~_BV(4);	// set bit, input
-  PORTB &= ~_BV(4);	// set bit, enable pull-up resistor
+ // DDRB &= ~_BV(4);	// set bit, input
+ // PORTB &= ~_BV(4);	// set bit, enable pull-up resistor
 
 
 
 }
 
 void Raise::setup(void) {
-  wdt_disable();
+  //wdt_disable();
   delay(100);
   enableScannerPower();
 
@@ -77,7 +77,7 @@ void Raise::setup(void) {
   rightHandState.all = 0;
 
   //TWBR = 72; // This is 100khz, 
-  TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
+  //TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
 /*
 float comps_l[LEFT_UNDERGLOW_LEDS] =  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // 32 in total
@@ -178,11 +178,7 @@ void Raise::syncLeds() {
 }
 
 boolean Raise::ledPowerFault() {
-  if (PINB & _BV(4)) {
-    return true;
-  } else {
     return false;
-  }
 }
 
 void debugKeyswitchEvent(keydata_t state, keydata_t previousState, uint8_t keynum, uint8_t row, uint8_t col) {
@@ -259,7 +255,7 @@ void Raise::rebootBootloader() {
   *bootKeyPtr = bootKey;
 
   // Set a watchdog timer
-  wdt_enable(WDTO_120MS);
+  //wdt_enable(WDTO_120MS);
 
   while (1) {} // This infinite loop ensures nothing else
   // happens before the watchdog reboots us
