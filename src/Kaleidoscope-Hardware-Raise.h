@@ -4,6 +4,7 @@
 
 #define HARDWARE_IMPLEMENTATION Raise
 #include "KeyboardioScanner.h"
+#include "Kaleidoscope-HIDAdaptor-KeyboardioHID.h"
 
 #define COLS 16
 #define ROWS 5
