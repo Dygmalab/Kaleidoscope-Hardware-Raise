@@ -76,6 +76,9 @@ void Raise::setup(void) {
   leftHandState.all = 0;
   rightHandState.all = 0;
 
+  // initialise Wire of scanner - have to do this here to avoid problem with static object intialisation ordering
+  twi_init();
+
   //TWBR = 72; // This is 100khz, 
   //TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
