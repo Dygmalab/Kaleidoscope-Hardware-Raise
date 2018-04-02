@@ -32,18 +32,26 @@ static constexpr uint8_t underglow_led_map[2][28] = {
     { 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98 },
 };
 
+// rgb pwm pin definitions
+int red[3] = { 3, 6, 10, };
+int blu[3] = { 4, 8, 11, };
+int grn[3] = { 5, 9, 12, };
+
+void showAnalogRGB(cRGB rgb, int i)
+{
+    // invert as these are common anode, and make sure we reach 65535 to be able to turn fully off.
+    analogWrite(red[i], ((256-pgm_read_byte(&gamma8[rgb.r])) << 8) -1 );
+    analogWrite(grn[i], ((256-pgm_read_byte(&gamma8[rgb.g])) << 8) -1 );
+    analogWrite(blu[i], ((256-pgm_read_byte(&gamma8[rgb.b])) << 8) -1 );
+}
+
 Raise::Raise(void) {
 
 }
 
 void Raise::enableScannerPower(void) {
-  // PC7
-  //pinMode(13, OUTPUT);
-  //digitalWrite(13, HIGH);
-  // Turn on power to the LED net
-  //DDRC |= _BV(7);
- // PORTC |= _BV(7);
-
+    digitalWrite(0, HIGH);
+    digitalWrite(1, HIGH);
 }
 
 // This lets the keyboard pull up to 1.6 amps from
@@ -65,8 +73,19 @@ void Raise::enableHighPowerLeds(void) {
 }
 
 void Raise::setup(void) {
-  //wdt_disable();
-  delay(100);
+  pinMode(0, OUTPUT);
+  pinMode(1, OUTPUT);
+  digitalWrite(0, LOW);
+  digitalWrite(1, LOW);
+
+  // arduino zero analogWrite(255) isn't fully on as its actually working with a 16bit counter and the mapping is a bit shift.
+  // so change to 16 bit resolution to avoid the mapping and do the mapping ourselves in showAnalogRGB() to ensure LEDs can be
+  // set fully off
+  analogWriteResolution(16);
+  for(int i = 0; i < 3; i ++)
+      showAnalogRGB({0,0,0},i);
+
+  delay(1000);
   enableScannerPower();
 
   // Consider not doing this until 30s after keyboard
@@ -176,6 +195,11 @@ void Raise::syncLeds() {
       rightHand.sendLEDData();
   }
 
+  showAnalogRGB( {leftHand.ledData.leds[1].r, leftHand.ledData.leds[1].g, leftHand.ledData.leds[1].b} , 1);
+  SerialUSB.println(leftHand.ledData.leds[1].r); 
+  SerialUSB.println(leftHand.ledData.leds[1].g); 
+  SerialUSB.println(leftHand.ledData.leds[1].b); 
+  SerialUSB.println("--");
 
   isLEDChanged = false;
 }
