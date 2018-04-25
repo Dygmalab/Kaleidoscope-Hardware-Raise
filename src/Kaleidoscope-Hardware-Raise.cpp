@@ -20,16 +20,16 @@ keydata_t Raise::rightHandMask;
                           r4c5, r4c6,                      r4c10, r4c9)                      \
   */
 static constexpr uint8_t key_led_map[5][16] = {
-  {0,  1,  2,  3,  4,  5,  6,  XX,   XX, 32, 33, 34, 35, 36, 37, 38 }, //14
-  {7,  8,  9,  10, 11, 12, XX, XX,   46, 39, 40, 41, 42, 43, 44, 45 }, //14
-  {13, 14, 15, 16, 17, 18, XX, XX,   XX, 47, 48, 49, 50, 51, 52, 53 }, //13
-  {19, 20, 21, 22, 23, 24, XX, XX,   XX, XX, 54, 55, 56, 57, 58, 59 }, //12
-  {25, 26, 27, 28, 29, 30, 31, XX,    65, 66, 67, 60, 61, 62, 63, 64 }, //15
+  {6,  7,  8,  9,  10,  11,  12,  XX,   XX, XX, XX, XX, XX, XX, XX, XX }, //14
+  {23,  24,  25,  26, 27, 28, XX, XX,   XX, XX, XX, XX, XX, XX, XX, XX }, //14
+  {37, 38, 39, 40, 41, 42, XX, XX,   XX, XX, XX, XX, XX, XX, XX, XX }, //13
+  {45, 46, 47, 48, 49, 50, XX, XX,   XX, XX, XX, XX, XX, XX, XX, XX }, //12
+  {53, 54, 55, 56, 29, 30, 57, XX,    XX, XX, XX, XX, XX, XX, XX, XX }, //15
 };
 
 static constexpr uint8_t underglow_led_map[2][28] = {
-    { 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59 },
-    { 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98 },
+    { XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX },
+    { XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX },
 };
 
 // rgb pwm pin definitions
@@ -132,6 +132,12 @@ cRGB comp_r(cRGB crgb, int led_num)
 #define RIGHT_UNDERGLOW_LEDS 16 + 16 + 2
 */
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
+    if(i == XX ) return;
+
+    cRGB oldColor = getCrgbAt(i);
+    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
+    leftHand.ledData.leds[i] = crgb;
+/*
   if (i < LEFT_KEYS) {  // left keys
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
@@ -161,6 +167,7 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
     // how do we want to handle debugging assertions about crazy user
     // code that would overwrite other memory?
   }
+  */
 }
 
 void Raise::setCrgbAt(byte row, byte col, cRGB color) {
@@ -172,6 +179,8 @@ uint8_t Raise::getLedIndex(byte row, byte col) {
 }
 
 cRGB Raise::getCrgbAt(uint8_t i) {
+    return leftHand.ledData.leds[i];
+/*
   if (i < LEFT_KEYS) {
     return leftHand.ledData.leds[i];
   } else if (i < LEFT_KEYS + RIGHT_KEYS) {
@@ -183,6 +192,7 @@ cRGB Raise::getCrgbAt(uint8_t i) {
   } else {
     return {0, 0, 0};
   }
+  */
 }
 
 void Raise::syncLeds() {
