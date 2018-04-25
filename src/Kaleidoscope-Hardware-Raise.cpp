@@ -37,7 +37,7 @@ int red[3] = { 3, 6, 10, };
 int blu[3] = { 4, 8, 11, };
 int grn[3] = { 5, 9, 12, };
 
-void showAnalogRGB(cRGB rgb, int i)
+void Raise::showAnalogRGB(cRGB rgb, int i)
 {
     // invert as these are common anode, and make sure we reach 65535 to be able to turn fully off.
     analogWrite(red[i], ((256-pgm_read_byte(&gamma8[rgb.r])) << 8) -1 );
@@ -195,11 +195,8 @@ void Raise::syncLeds() {
       rightHand.sendLEDData();
   }
 
-  showAnalogRGB( {leftHand.ledData.leds[1].r, leftHand.ledData.leds[1].g, leftHand.ledData.leds[1].b} , 1);
-  SerialUSB.println(leftHand.ledData.leds[1].r); 
-  SerialUSB.println(leftHand.ledData.leds[1].g); 
-  SerialUSB.println(leftHand.ledData.leds[1].b); 
-  SerialUSB.println("--");
+  for(int i = 0; i < 3; i ++)
+      showAnalogRGB( {leftHand.ledData.leds[1].r, leftHand.ledData.leds[1].g, leftHand.ledData.leds[1].b} , i);
 
   isLEDChanged = false;
 }

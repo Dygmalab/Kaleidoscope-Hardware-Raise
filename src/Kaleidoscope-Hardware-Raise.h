@@ -24,6 +24,7 @@ class Raise {
   void readMatrix(void);
   void actOnMatrixScan(void);
   void setup();
+  void showAnalogRGB(cRGB rgb, int i);
   void enableHighPowerLeds(void);
   void enableScannerPower(void);
   void rebootBootloader();
