@@ -20,11 +20,11 @@ keydata_t Raise::rightHandMask;
                           r4c5, r4c6,                      r4c10, r4c9)                      \
   */
 static constexpr uint8_t key_led_map[5][16] = {
-  {6,  7,  8,  9,  10,  11,  12,  XX,   XX, XX, XX, XX, XX, XX, XX, XX }, //14
-  {23,  24,  25,  26, 27, 28, XX, XX,   XX, XX, XX, XX, XX, XX, XX, XX }, //14
-  {37, 38, 39, 40, 41, 42, XX, XX,   XX, XX, XX, XX, XX, XX, XX, XX }, //13
-  {45, 46, 47, 48, 49, 50, XX, XX,   XX, XX, XX, XX, XX, XX, XX, XX }, //12
-  {53, 54, 55, 56, 29, 30, 57, XX,    XX, XX, XX, XX, XX, XX, XX, XX }, //15
+  {5,  6,  7,  8,  9,  10, 11, XX,      XX,   11+LPH, 10+LPH, 9+LPH, 8+LPH, 7+LPH, 6+LPH, 5 +LPH}, //14
+  {22, 23, 24, 25, 26, 27, XX, XX,      61+LPH, 27+LPH, 26+LPH, 25+LPH, 24+LPH, 23+LPH, 22+LPH, 60 +LPH}, //14
+  {36, 37, 38, 39, 40, 41, XX, XX,      XX,   62+LPH, 41+LPH, 40+LPH, 39+LPH, 38+LPH, 37+LPH, 36 +LPH}, //13
+  {44, 45, 46, 47, 48, 49, XX, XX,      XX, XX,   49+LPH, 48+LPH, 47+LPH, 46+LPH, 45+LPH, 44 +LPH}, //12
+  {52, 53, 54, 55, 28, 29, 56, XX,      56+LPH, XX, XX, 55+LPH, 54+LPH, 53+LPH, 52+LPH, 63 +LPH}, //15  // 2 XX are for low profile - not sure what order
 };
 
 static constexpr uint8_t underglow_led_map[2][28] = {
@@ -37,7 +37,7 @@ int red[3] = { 3, 6, 10, };
 int blu[3] = { 4, 8, 11, };
 int grn[3] = { 5, 9, 12, };
 
-void showAnalogRGB(cRGB rgb, int i)
+void Raise::showAnalogRGB(cRGB rgb, int i)
 {
     // invert as these are common anode, and make sure we reach 65535 to be able to turn fully off.
     analogWrite(red[i], ((256-pgm_read_byte(&gamma8[rgb.r])) << 8) -1 );
@@ -101,73 +101,24 @@ void Raise::setup(void) {
   //TWBR = 72; // This is 100khz, 
   //TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
-/*
-float comps_l[LEFT_UNDERGLOW_LEDS] =  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // 32 in total
-float comps_r[RIGHT_UNDERGLOW_LEDS] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // 34 in total
-cRGB comp_l(cRGB crgb, int led_num)
-{
-    if(comps_l[led_num] == 1)
-        return crgb;
-    crgb.r *= comps_l[led_num];
-    crgb.g *= comps_l[led_num];
-    crgb.b *= comps_l[led_num];
-    return crgb;
-}
-cRGB comp_r(cRGB crgb, int led_num)
-{
-    if(comps_l[led_num] == 1)
-        return crgb;
-    crgb.r *= comps_r[led_num];
-    crgb.g *= comps_r[led_num];
-    crgb.b *= comps_r[led_num];
-    return crgb;
-}
-*/
-/*
 
-#define LEFT_KEYS 32
-#define LEFT_UNDERGLOW_LEDS 14 + 16 + 2
-
-#define RIGHT_KEYS 36
-#define RIGHT_UNDERGLOW_LEDS 16 + 16 + 2
-*/
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
-    if(i == XX ) return;
-
+  if( i < LEDS_PER_HAND) {
     cRGB oldColor = getCrgbAt(i);
-    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
     leftHand.ledData.leds[i] = crgb;
-/*
-  if (i < LEFT_KEYS) {  // left keys
-    cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
-
-    leftHand.ledData.leds[i] = crgb;
-  } else if (i < LEFT_KEYS + RIGHT_KEYS) { // right keys
-    cRGB oldColor = getCrgbAt(i);
+  }
+  else if( i < 2 * LEDS_PER_HAND) {
+    rightHand.ledData.leds[i-LEDS_PER_HAND] = crgb;
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
-
-    rightHand.ledData.leds[i - LEFT_KEYS] = crgb;
-
-  } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS) { // left under
-    cRGB oldColor = getCrgbAt(i);
-    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
-
-    leftHand.ledData.leds[i - RIGHT_KEYS] = crgb;
-    //leftHand.ledData.leds[i - RIGHT_KEYS] = comp_l(crgb, i - (LEFT_KEYS + RIGHT_KEYS));
-     
-  } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS) { // right under
-    cRGB oldColor = getCrgbAt(i);
-    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
-    rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] = crgb;
-  } else if (i == XX ) {
+  }
+  else if(i == XX ) {
     // do nothing with missing leds
   } else {
     // TODO(anyone):
     // how do we want to handle debugging assertions about crazy user
     // code that would overwrite other memory?
   }
-  */
 }
 
 void Raise::setCrgbAt(byte row, byte col, cRGB color) {
@@ -179,20 +130,13 @@ uint8_t Raise::getLedIndex(byte row, byte col) {
 }
 
 cRGB Raise::getCrgbAt(uint8_t i) {
+  if (i < LEDS_PER_HAND) {
     return leftHand.ledData.leds[i];
-/*
-  if (i < LEFT_KEYS) {
-    return leftHand.ledData.leds[i];
-  } else if (i < LEFT_KEYS + RIGHT_KEYS) {
-    return rightHand.ledData.leds[i - LEFT_KEYS] ;
-  } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS) {
-    return leftHand.ledData.leds[i - RIGHT_KEYS] ;
-  } else if (i < LEFT_KEYS + RIGHT_KEYS + LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS ) {
-    return rightHand.ledData.leds[i - (LEFT_KEYS + LEFT_UNDERGLOW_LEDS)] ;
+  } else if (i < 2*LEDS_PER_HAND) {
+    return rightHand.ledData.leds[i - LEDS_PER_HAND];
   } else {
     return {0, 0, 0};
   }
-  */
 }
 
 void Raise::syncLeds() {
@@ -205,11 +149,8 @@ void Raise::syncLeds() {
       rightHand.sendLEDData();
   }
 
-  showAnalogRGB( {leftHand.ledData.leds[1].r, leftHand.ledData.leds[1].g, leftHand.ledData.leds[1].b} , 1);
-  SerialUSB.println(leftHand.ledData.leds[1].r); 
-  SerialUSB.println(leftHand.ledData.leds[1].g); 
-  SerialUSB.println(leftHand.ledData.leds[1].b); 
-  SerialUSB.println("--");
+  for(int i = 0; i < 3; i ++)
+      showAnalogRGB( {leftHand.ledData.leds[1].r, leftHand.ledData.leds[1].g, leftHand.ledData.leds[1].b} , i);
 
   isLEDChanged = false;
 }
