@@ -50,33 +50,19 @@ Raise::Raise(void) {
 }
 
 void Raise::enableScannerPower(void) {
+    pinMode(0, OUTPUT);
+    pinMode(1, OUTPUT);
     digitalWrite(0, HIGH);
     digitalWrite(1, HIGH);
 }
 
-// This lets the keyboard pull up to 1.6 amps from
-// the host. That violates the USB spec. But it sure
-// is pretty looking
-void Raise::enableHighPowerLeds(void) {
-  // PE6
-  //    pinMode(7, OUTPUT);
-  //    digitalWrite(7, LOW);
-  //DDRE |= _BV(6);
-  //PORTE &= ~_BV(6);
-
-  // Set B4, the overcurrent check to an input with an internal pull-up
- // DDRB &= ~_BV(4);	// set bit, input
- // PORTB &= ~_BV(4);	// set bit, enable pull-up resistor
-
-
-
-}
 
 void Raise::setup(void) {
   pinMode(0, OUTPUT);
   pinMode(1, OUTPUT);
   digitalWrite(0, LOW);
   digitalWrite(1, LOW);
+
 
   // arduino zero analogWrite(255) isn't fully on as its actually working with a 16bit counter and the mapping is a bit shift.
   // so change to 16 bit resolution to avoid the mapping and do the mapping ourselves in showAnalogRGB() to ensure LEDs can be
@@ -85,13 +71,16 @@ void Raise::setup(void) {
   for(int i = 0; i < 3; i ++)
       showAnalogRGB({0,0,0},i);
 
+  while(analogRead(UFP_CC) < 100) // should be about 150. If it's 0 then we are powered through one of the side ports
+      for(int i = 0; i < 3; i ++)
+          showAnalogRGB({100,0,0},i);
+
   delay(1000);
   enableScannerPower();
 
   // Consider not doing this until 30s after keyboard
   // boot up, to make it easier to rescue things
   // in case of power draw issues.
-  enableHighPowerLeds();
   leftHandState.all = 0;
   rightHandState.all = 0;
 

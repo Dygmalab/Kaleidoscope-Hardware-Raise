@@ -11,6 +11,11 @@
 
 #define CRGB(r,g,b) (cRGB){r, g, b}
 
+// adc pins for USB C CC pins
+#define UFP_CC  A1
+#define DFPL_CC A2
+#define DFPR_CC A3
+
 class Raise {
  public:
   Raise(void);
@@ -132,19 +137,16 @@ class Raise {
 #define R3C15 SCANBIT(3, 7)
 
 
-#define LEFT_PALM 14
 #define LEFT_LP_UNDER 2
-#define LEFT_KEY_UNDER 16
+#define LEFT_UNDER 30
 #define LEFT_KEYS 32
 
-#define RIGHT_PALM 16
-#define RIGHT_LP_UNDER 1// would be 2 underglow, but taken one for the missing key light
-#define RIGHT_KEY_UNDER 17 
+#define RIGHT_LP_UNDER 2
+#define RIGHT_UNDER 32
 #define RIGHT_KEYS 36
 
-#define LEFT_UNDERGLOW_LEDS LEFT_KEY_UNDER + LEFT_PALM + LEFT_LP_UNDER  // 32 in total
-#define RIGHT_UNDERGLOW_LEDS RIGHT_KEY_UNDER + RIGHT_PALM + RIGHT_LP_UNDER // 34 in total
-#define LED_COUNT LEFT_UNDERGLOW_LEDS + RIGHT_UNDERGLOW_LEDS + LEFT_KEYS + RIGHT_KEYS // total across both halves
+//#define LED_COUNT LEFT_UNDER + RIGHT_UNDER + LEFT_KEYS + RIGHT_KEYS + LEFT_LP_UNDER + RIGHT_LP_UNDER // total across both halves
+#define LED_COUNT LEDS_PER_HAND * 2 // total possible - not all connected
 
 
 #define LED_PGDN 0
