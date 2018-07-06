@@ -34,6 +34,9 @@ class Raise {
   void enableScannerPower(void);
   void rebootBootloader();
 
+  void attachToHost();
+  void detachFromHost();
+
   boolean ledPowerFault(void);
 
   /* Key masking

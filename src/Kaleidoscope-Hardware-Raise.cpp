@@ -262,9 +262,19 @@ bool Raise::isKeyMasked(byte row, byte col) {
   }
 }
 
+
 void Raise::maskHeldKeys(void) {
   memcpy(leftHandMask.rows, leftHandState.rows, sizeof(leftHandMask));
   memcpy(rightHandMask.rows, rightHandState.rows, sizeof(rightHandMask));
+}
+
+void Raise::detachFromHost() {
+  //https://github.com/arduino/ArduinoCore-samd/blob/master/cores/arduino/USB/SAMD21_USBDevice.h#L60-L61
+  USBDevice.detach();
+}
+
+void Raise::attachToHost() {
+  USBDevice.attach();
 }
 
 HARDWARE_IMPLEMENTATION KeyboardHardware;
