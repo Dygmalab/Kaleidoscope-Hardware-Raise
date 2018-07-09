@@ -12,19 +12,28 @@ keydata_t Raise::rightHandMask;
 
 /*
 #define KEYMAP_60(                                                                                     \
-  r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,         r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
+  r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,                r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
   r1c0, r1c1, r1c2, r1c3, r1c4, r1c5,               r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, r1c8, \
-  r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,               r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
-  r3c0, r3c1, r3c2, r3c3, r3c4, r3c5,                      r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
-  r4c0, r4c1, r4c2, r4c3,             r4c4,         r4c11,               r4c12, r4c13, r4c14, r4c15, r4c8, \
+  r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,                      r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
+  r3c0, r3c1, r3c2, r3c3, r3c4, r3c5,                             r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
+  r4c0, r4c1, r4c2, r4c3,             r4c4,                r4c11,        r4c12, r4c13, r4c14, r4c15, r4c8, \
                           r4c5, r4c6,                      r4c10, r4c9)                      \
+#define KEYMAP_60(                                                                                     \
+  r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,                r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
+  r1c0, r1c1, r1c2, r1c3, r1c4, r1c5,               r1c8,  r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, \
+  r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,                      r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
+  r3c0, r3c1, r3c2, r3c3, r3c4, r3c5,                             r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
+  r4c0, r4c1, r4c2, r4c3,             r4c4,                r4c10,        r4c11, r4c12, r4c13, r4c14, r4c15, \
+                          r4c6, r4c7,                      r4c8, r4c9)                      \
   */
+
+// LPH comes from keyboardioscanner.h - leds per hand = 72 defined by the size of the buffer used to transfer data to sides
 static constexpr uint8_t key_led_map[5][16] = {
-  {5,  6,  7,  8,  9,  10, 11, XX,      XX,   11+LPH, 10+LPH, 9+LPH, 8+LPH, 7+LPH, 6+LPH, 5 +LPH}, //14
-  {22, 23, 24, 25, 26, 27, XX, XX,      61+LPH, 27+LPH, 26+LPH, 25+LPH, 24+LPH, 23+LPH, 22+LPH, 60 +LPH}, //14
-  {36, 37, 38, 39, 40, 41, XX, XX,      XX,   62+LPH, 41+LPH, 40+LPH, 39+LPH, 38+LPH, 37+LPH, 36 +LPH}, //13
-  {44, 45, 46, 47, 48, 49, XX, XX,      XX, XX,   49+LPH, 48+LPH, 47+LPH, 46+LPH, 45+LPH, 44 +LPH}, //12
-  {52, 53, 54, 55, 28, 29, 56, XX,      56+LPH, XX, XX, 55+LPH, 54+LPH, 53+LPH, 52+LPH, 63 +LPH}, //15  // 2 XX are for low profile - not sure what order
+  {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   11+LPH, 10+LPH, 9+LPH, 8+LPH, 7+LPH, 6+LPH, 5 +LPH}, //14
+  {7,  8,  9,  10, 11, 12, XX, XX,      61+LPH, 27+LPH, 26+LPH, 25+LPH, 24+LPH, 23+LPH, 22+LPH, 60 +LPH}, //14
+  {13, 14, 15, 16, 17, 18, XX, XX,      XX,   62+LPH, 41+LPH, 40+LPH, 39+LPH, 38+LPH, 37+LPH, 36 +LPH}, //13
+  {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   49+LPH, 48+LPH, 47+LPH, 46+LPH, 45+LPH, 44 +LPH}, //12
+  {26, 27, 28, 29, 30, 31, 32, XX,      56+LPH, XX, XX, 55+LPH, 54+LPH, 53+LPH, 52+LPH, 63 +LPH}, //15  // 2 XX are for low profile - not sure what order
 };
 
 static constexpr uint8_t underglow_led_map[2][28] = {
@@ -32,17 +41,12 @@ static constexpr uint8_t underglow_led_map[2][28] = {
     { XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX },
 };
 
-// rgb pwm pin definitions
-int red[3] = { 3, 6, 10, };
-int blu[3] = { 4, 8, 11, };
-int grn[3] = { 5, 9, 12, };
-
-void Raise::showAnalogRGB(cRGB rgb, int i)
+void Raise::showAnalogRGB(cRGB rgb)
 {
     // invert as these are common anode, and make sure we reach 65535 to be able to turn fully off.
-    analogWrite(red[i], ((256-pgm_read_byte(&gamma8[rgb.r])) << 8) -1 );
-    analogWrite(grn[i], ((256-pgm_read_byte(&gamma8[rgb.g])) << 8) -1 );
-    analogWrite(blu[i], ((256-pgm_read_byte(&gamma8[rgb.b])) << 8) -1 );
+    analogWrite(PWM_R, ((256-pgm_read_byte(&gamma8[rgb.r])) << 8) -1 );
+    analogWrite(PWM_G, ((256-pgm_read_byte(&gamma8[rgb.g])) << 8) -1 );
+    analogWrite(PWM_B, ((256-pgm_read_byte(&gamma8[rgb.b])) << 8) -1 );
 }
 
 Raise::Raise(void) {
@@ -50,30 +54,24 @@ Raise::Raise(void) {
 }
 
 void Raise::enableScannerPower(void) {
-    pinMode(0, OUTPUT);
-    pinMode(1, OUTPUT);
-    digitalWrite(0, HIGH);
-    digitalWrite(1, HIGH);
+    pinMode(SIDE_POWER, OUTPUT);
+    digitalWrite(SIDE_POWER, HIGH);
 }
 
 
 void Raise::setup(void) {
-  pinMode(0, OUTPUT);
-  pinMode(1, OUTPUT);
-  digitalWrite(0, LOW);
-  digitalWrite(1, LOW);
+  pinMode(SIDE_POWER, OUTPUT);
+  digitalWrite(SIDE_POWER, LOW);
 
 
   // arduino zero analogWrite(255) isn't fully on as its actually working with a 16bit counter and the mapping is a bit shift.
   // so change to 16 bit resolution to avoid the mapping and do the mapping ourselves in showAnalogRGB() to ensure LEDs can be
   // set fully off
   analogWriteResolution(16);
-  for(int i = 0; i < 3; i ++)
-      showAnalogRGB({0,0,0},i);
+  showAnalogRGB({0,0,0});
 
   while(analogRead(UFP_CC) < 100) // should be about 150. If it's 0 then we are powered through one of the side ports
-      for(int i = 0; i < 3; i ++)
-          showAnalogRGB({100,0,0},i);
+      showAnalogRGB({100,0,0});
 
   delay(1000);
   enableScannerPower();
@@ -86,9 +84,6 @@ void Raise::setup(void) {
 
   // initialise Wire of scanner - have to do this here to avoid problem with static object intialisation ordering
   twi_init();
-
-  //TWBR = 72; // This is 100khz, 
-  //TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
 
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
@@ -139,8 +134,8 @@ void Raise::syncLeds() {
       rightHand.sendLEDData();
   }
 
-  for(int i = 0; i < 3; i ++)
-      showAnalogRGB( {leftHand.ledData.leds[1].r, leftHand.ledData.leds[1].g, leftHand.ledData.leds[1].b} , i);
+  // show on the huble LED the same colour as the firsts led on left side
+  showAnalogRGB( {leftHand.ledData.leds[0].r, leftHand.ledData.leds[0].g, leftHand.ledData.leds[0].b});
 
   isLEDChanged = false;
 }
