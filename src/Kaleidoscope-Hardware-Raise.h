@@ -148,15 +148,7 @@ class Raise {
 #define R3C15 SCANBIT(3, 7)
 
 
-#define LEFT_LP_UNDER 2
-#define LEFT_UNDER 30
-#define LEFT_KEYS 32
-
-#define RIGHT_LP_UNDER 2
-#define RIGHT_UNDER 32
-#define RIGHT_KEYS 36
-
-//#define LED_COUNT LEFT_UNDER + RIGHT_UNDER + LEFT_KEYS + RIGHT_KEYS + LEFT_LP_UNDER + RIGHT_LP_UNDER // total across both halves
+// LEDS_PER_HAND defined in keyboardioscanner
 #define LED_COUNT LEDS_PER_HAND * 2 // total possible - not all connected
 
 

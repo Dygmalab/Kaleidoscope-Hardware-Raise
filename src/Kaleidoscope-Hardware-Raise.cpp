@@ -28,12 +28,13 @@ keydata_t Raise::rightHandMask;
   */
 
 // LPH comes from keyboardioscanner.h - leds per hand = 72 defined by the size of the buffer used to transfer data to sides
+// these are zero indexed
 static constexpr uint8_t key_led_map[5][16] = {
-  {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   11+LPH, 10+LPH, 9+LPH, 8+LPH, 7+LPH, 6+LPH, 5 +LPH}, //14
-  {7,  8,  9,  10, 11, 12, XX, XX,      61+LPH, 27+LPH, 26+LPH, 25+LPH, 24+LPH, 23+LPH, 22+LPH, 60 +LPH}, //14
-  {13, 14, 15, 16, 17, 18, XX, XX,      XX,   62+LPH, 41+LPH, 40+LPH, 39+LPH, 38+LPH, 37+LPH, 36 +LPH}, //13
-  {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   49+LPH, 48+LPH, 47+LPH, 46+LPH, 45+LPH, 44 +LPH}, //12
-  {26, 27, 28, 29, 30, 31, 32, XX,      56+LPH, XX, XX, 55+LPH, 54+LPH, 53+LPH, 52+LPH, 63 +LPH}, //15  // 2 XX are for low profile - not sure what order
+  {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LPH, 5+LPH, 4+LPH, 3+LPH, 2+LPH, 1+LPH, 0+LPH},
+  {7,  8,  9,  10, 11, 12, XX, XX,      14+LPH, 13+LPH, 12+LPH, 11+LPH, 10+LPH, 9+LPH, 8+LPH, 7 +LPH},
+  {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LPH, 20+LPH, 19, 18+LPH, 17+LPH, 16+LPH, 15 +LPH},
+  {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LPH, 26+LPH, 25+LPH, 24+LPH, 23+LPH, 22 +LPH},
+  {26, 27, 28, 29, 30, 68, 69, XX,      69+LPH, 68+LPH, 33+LPH, 32+LPH, 31+LPH, 30+LPH, 29+LPH, 28+LPH}, 
 };
 
 static constexpr uint8_t underglow_led_map[2][28] = {
