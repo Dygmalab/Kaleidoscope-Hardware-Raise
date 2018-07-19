@@ -24,6 +24,7 @@ class Raise {
   void setCrgbAt(uint8_t i, cRGB crgb);
   cRGB getCrgbAt(uint8_t i);
   uint8_t getLedIndex(byte row, byte col);
+  static bool focusHook(const char *command);
 
   void scanMatrix(void);
   void readMatrix(void);
@@ -67,6 +68,9 @@ class Raise {
   static keydata_t rightHandMask;
 };
 
+#define FOCUS_HOOK_HARDWARE FOCUS_HOOK(Raise.focusHook,        \
+                                           "hardware.left_ver\n" \
+                                           "hardware.right_ver")
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))
 
 

@@ -81,14 +81,13 @@ void Raise::setup(void) {
   // Consider not doing this until 30s after keyboard
   // boot up, to make it easier to rescue things
   // in case of power draw issues.
+
   leftHandState.all = 0;
   rightHandState.all = 0;
 
   // initialise Wire of scanner - have to do this here to avoid problem with static object intialisation ordering
   twi_init();
 
-  //TWBR = 72; // This is 100khz, 
-  //TWBR = 12; // This is 400khz, which is the fastest we can drive the ATTiny
 }
 
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
@@ -275,6 +274,32 @@ void Raise::detachFromHost() {
 
 void Raise::attachToHost() {
   USBDevice.attach();
+}
+
+bool Raise::focusHook(const char *command) {
+  enum {
+    LEFT_VER,
+    RIGHT_VER,
+  } subCommand;
+
+  if (strncmp_P(command, PSTR("hardware."), 9) != 0)
+    return false;
+  if (strcmp_P(command + 9, PSTR("left_ver")) == 0)
+    subCommand = LEFT_VER;
+  else if (strcmp_P(command + 9, PSTR("right_ver")) == 0)
+    subCommand = RIGHT_VER;
+  else
+    return false;
+
+  switch (subCommand) {
+  case LEFT_VER:
+      SerialUSB.println(leftHand.readVersion());
+    break;
+  case RIGHT_VER:
+      SerialUSB.println(rightHand.readVersion());
+    break;
+  }
+  return true;
 }
 
 HARDWARE_IMPLEMENTATION KeyboardHardware;
