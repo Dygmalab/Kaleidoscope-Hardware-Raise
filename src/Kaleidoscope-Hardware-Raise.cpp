@@ -278,25 +278,37 @@ void Raise::attachToHost() {
 
 bool Raise::focusHook(const char *command) {
   enum {
-    LEFT_VER,
-    RIGHT_VER,
+    SIDE_VER,
+    KEYSCAN,
   } subCommand;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
     return false;
-  if (strcmp_P(command + 9, PSTR("left_ver")) == 0)
-    subCommand = LEFT_VER;
-  else if (strcmp_P(command + 9, PSTR("right_ver")) == 0)
-    subCommand = RIGHT_VER;
+  if (strcmp_P(command + 9, PSTR("side_ver")) == 0)
+    subCommand = SIDE_VER;
+  else if (strcmp_P(command + 9, PSTR("keyscan")) == 0)
+    subCommand = KEYSCAN;
   else
     return false;
 
   switch (subCommand) {
-  case LEFT_VER:
+  case SIDE_VER:
+      SerialUSB.print("left: ");
       SerialUSB.println(leftHand.readVersion());
-    break;
-  case RIGHT_VER:
+      SerialUSB.print("right: ");
       SerialUSB.println(rightHand.readVersion());
+    break;
+  case KEYSCAN:
+    if (SerialUSB.peek() == '\n') {
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.readKeyscanInterval());
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.readKeyscanInterval());
+    } else {
+      uint8_t interval = SerialUSB.parseInt();
+      leftHand.setKeyscanInterval(interval);
+      rightHand.setKeyscanInterval(interval);
+    }
     break;
   }
   return true;
