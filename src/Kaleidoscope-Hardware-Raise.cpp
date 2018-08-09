@@ -279,6 +279,7 @@ void Raise::attachToHost() {
 bool Raise::focusHook(const char *command) {
   enum {
     SIDE_VER,
+    SLED_VER,
     KEYSCAN,
   } subCommand;
 
@@ -288,10 +289,18 @@ bool Raise::focusHook(const char *command) {
     subCommand = SIDE_VER;
   else if (strcmp_P(command + 9, PSTR("keyscan")) == 0)
     subCommand = KEYSCAN;
+  else if (strcmp_P(command + 9, PSTR("sled_ver")) == 0)
+    subCommand = SLED_VER;
   else
     return false;
 
   switch (subCommand) {
+  case SLED_VER:
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.readSLEDVersion());
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.readSLEDVersion());
+    break;
   case SIDE_VER:
       SerialUSB.print("left: ");
       SerialUSB.println(leftHand.readVersion());
