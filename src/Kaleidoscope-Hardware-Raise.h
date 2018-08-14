@@ -79,6 +79,7 @@ class Raise {
 #define FOCUS_HOOK_HARDWARE FOCUS_HOOK(Raise::focusHook,        \
                                            "hardware.keyscan\n" \
                                            "hardware.sled_ver\n" \
+                                           "hardware.joint\n" \
                                            "hardware.side_ver")
 
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))

@@ -64,6 +64,10 @@ void Raise::setup(void) {
   pinMode(SIDE_POWER, OUTPUT);
   digitalWrite(SIDE_POWER, LOW);
 
+  pinMode(DFPL_CC, OUTPUT); // set the analog pins to make sure they are set to inputs
+  digitalWrite(DFPL_CC, LOW);
+  pinMode(DFPR_CC, OUTPUT);
+  digitalWrite(DFPR_CC, LOW);
 
   // arduino zero analogWrite(255) isn't fully on as its actually working with a 16bit counter and the mapping is a bit shift.
   // so change to 16 bit resolution to avoid the mapping and do the mapping ourselves in showAnalogRGB() to ensure LEDs can be
@@ -74,8 +78,9 @@ void Raise::setup(void) {
   while(analogRead(UFP_CC) < 100) // should be about 150. If it's 0 then we are powered through one of the side ports
       showAnalogRGB({100,0,0});
 
-  delay(1000);
+  delay(500);
   enableScannerPower();
+  delay(200); // wait for sides bootloader to finish
 
   // Consider not doing this until 30s after keyboard
   // boot up, to make it easier to rescue things
@@ -278,6 +283,7 @@ bool Raise::focusHook(const char *command) {
     SIDE_VER,
     SLED_VER,
     KEYSCAN,
+    JOINT,
   } subCommand;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
@@ -288,6 +294,8 @@ bool Raise::focusHook(const char *command) {
     subCommand = KEYSCAN;
   else if (strcmp_P(command + 9, PSTR("sled_ver")) == 0)
     subCommand = SLED_VER;
+  else if (strcmp_P(command + 9, PSTR("joint")) == 0)
+    subCommand = JOINT;
   else
     return false;
 
@@ -303,6 +311,9 @@ bool Raise::focusHook(const char *command) {
       SerialUSB.println(leftHand.readVersion());
       SerialUSB.print("right: ");
       SerialUSB.println(rightHand.readVersion());
+    break;
+  case JOINT:
+      SerialUSB.println(rightHand.readJoint());
     break;
   case KEYSCAN:
     if (SerialUSB.peek() == '\n') {
