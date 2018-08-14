@@ -3,7 +3,7 @@
 //#include <avr/wdt.h>
 
 KeyboardioScanner Raise::leftHand(0);
-KeyboardioScanner Raise::rightHand(3);
+KeyboardioScanner Raise::rightHand(1);
 bool Raise::isLEDChanged = true;
 keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
@@ -272,5 +272,53 @@ void Raise::detachFromHost() {
 void Raise::attachToHost() {
   USBDevice.attach();
 }
+
+bool Raise::focusHook(const char *command) {
+  enum {
+    SIDE_VER,
+    SLED_VER,
+    KEYSCAN,
+  } subCommand;
+
+  if (strncmp_P(command, PSTR("hardware."), 9) != 0)
+    return false;
+  if (strcmp_P(command + 9, PSTR("side_ver")) == 0)
+    subCommand = SIDE_VER;
+  else if (strcmp_P(command + 9, PSTR("keyscan")) == 0)
+    subCommand = KEYSCAN;
+  else if (strcmp_P(command + 9, PSTR("sled_ver")) == 0)
+    subCommand = SLED_VER;
+  else
+    return false;
+
+  switch (subCommand) {
+  case SLED_VER:
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.readSLEDVersion());
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.readSLEDVersion());
+    break;
+  case SIDE_VER:
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.readVersion());
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.readVersion());
+    break;
+  case KEYSCAN:
+    if (SerialUSB.peek() == '\n') {
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.readKeyscanInterval());
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.readKeyscanInterval());
+    } else {
+      uint8_t interval = SerialUSB.parseInt();
+      leftHand.setKeyscanInterval(interval);
+      rightHand.setKeyscanInterval(interval);
+    }
+    break;
+  }
+  return true;
+}
+
 
 HARDWARE_IMPLEMENTATION KeyboardHardware;
