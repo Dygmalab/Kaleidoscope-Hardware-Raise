@@ -80,6 +80,7 @@ class Raise {
                                            "hardware.keyscan\n" \
                                            "hardware.sled_ver\n" \
                                            "hardware.joint\n" \
+                                           "hardware.cc\n" \
                                            "hardware.side_ver")
 
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))

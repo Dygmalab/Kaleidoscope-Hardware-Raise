@@ -284,6 +284,7 @@ bool Raise::focusHook(const char *command) {
     SLED_VER,
     KEYSCAN,
     JOINT,
+    CC,
   } subCommand;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
@@ -296,6 +297,8 @@ bool Raise::focusHook(const char *command) {
     subCommand = SLED_VER;
   else if (strcmp_P(command + 9, PSTR("joint")) == 0)
     subCommand = JOINT;
+  else if (strcmp_P(command + 9, PSTR("cc")) == 0)
+    subCommand = CC;
   else
     return false;
 
@@ -314,6 +317,14 @@ bool Raise::focusHook(const char *command) {
     break;
   case JOINT:
       SerialUSB.println(rightHand.readJoint());
+    break;
+  case CC:
+      SerialUSB.print("UFP :");
+      SerialUSB.println(analogRead(UFP_CC));
+      SerialUSB.print("DFPL:");
+      SerialUSB.println(analogRead(DFPL_CC));
+      SerialUSB.print("DFPR:");
+      SerialUSB.println(analogRead(DFPR_CC));
     break;
   case KEYSCAN:
     if (SerialUSB.peek() == '\n') {
