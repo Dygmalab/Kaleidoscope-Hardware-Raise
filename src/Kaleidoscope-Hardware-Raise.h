@@ -18,8 +18,8 @@
 
 // led PWM pins pa9, pa8, pa15
 #define PWM_R 3
-#define PWM_G 4
-#define PWM_B 5
+#define PWM_G 5
+#define PWM_B 4
 
 // side power switch pa10
 #define SIDE_POWER 1
