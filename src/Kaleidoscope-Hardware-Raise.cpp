@@ -32,7 +32,7 @@ keydata_t Raise::rightHandMask;
 static constexpr uint8_t key_led_map[5][16] = {
   {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LPH, 5+LPH, 4+LPH, 3+LPH, 2+LPH, 1+LPH, 0+LPH},
   {7,  8,  9,  10, 11, 12, XX, XX,      14+LPH, 13+LPH, 12+LPH, 11+LPH, 10+LPH, 9+LPH, 8+LPH, 7 +LPH},
-  {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LPH, 20+LPH, 19, 18+LPH, 17+LPH, 16+LPH, 15 +LPH},
+  {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LPH, 20+LPH, 19+LPH, 18+LPH, 17+LPH, 16+LPH, 15 +LPH},
   {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LPH, 26+LPH, 25+LPH, 24+LPH, 23+LPH, 22 +LPH},
   {26, 27, 28, 29, 30, 68, 69, XX,      69+LPH, 68+LPH, 33+LPH, 32+LPH, 31+LPH, 30+LPH, 29+LPH, 28+LPH}, 
 };
