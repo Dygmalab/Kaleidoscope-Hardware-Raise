@@ -64,11 +64,6 @@ void Raise::setup(void) {
   pinMode(SIDE_POWER, OUTPUT);
   digitalWrite(SIDE_POWER, LOW);
 
-  pinMode(DFPL_CC, OUTPUT); // set the analog pins to make sure they are set to inputs
-  digitalWrite(DFPL_CC, LOW);
-  pinMode(DFPR_CC, OUTPUT);
-  digitalWrite(DFPR_CC, LOW);
-
   // arduino zero analogWrite(255) isn't fully on as its actually working with a 16bit counter and the mapping is a bit shift.
   // so change to 16 bit resolution to avoid the mapping and do the mapping ourselves in showAnalogRGB() to ensure LEDs can be
   // set fully off
