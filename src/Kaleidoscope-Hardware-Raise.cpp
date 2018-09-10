@@ -10,37 +10,34 @@ keydata_t Raise::rightHandMask;
 
 #define XX 0xFF // off
 
-/*
-#define KEYMAP_60(                                                                                     \
-  r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,                r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
-  r1c0, r1c1, r1c2, r1c3, r1c4, r1c5,               r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, r1c8, \
-  r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,                      r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
-  r3c0, r3c1, r3c2, r3c3, r3c4, r3c5,                             r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
-  r4c0, r4c1, r4c2, r4c3,             r4c4,                r4c11,        r4c12, r4c13, r4c14, r4c15, r4c8, \
-                          r4c5, r4c6,                      r4c10, r4c9)                      \
-#define KEYMAP_60(                                                                                     \
-  r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,                r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
-  r1c0, r1c1, r1c2, r1c3, r1c4, r1c5,               r1c8,  r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, \
-  r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,                      r2c9,  r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
-  r3c0, r3c1, r3c2, r3c3, r3c4, r3c5,                             r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
-  r4c0, r4c1, r4c2, r4c3,             r4c4,                r4c10,        r4c11, r4c12, r4c13, r4c14, r4c15, \
-                          r4c6, r4c7,                      r4c8, r4c9)                      \
-  */
 
-// LPH comes from keyboardioscanner.h - leds per hand = 72 defined by the size of the buffer used to transfer data to sides
-// these are zero indexed
+// these are zero indexed led numbers from sled matrix
+// maps rows and columns to the keyboard led number (0->LED_COUNT-1)
 static constexpr uint8_t key_led_map[5][16] = {
-  {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LPH, 5+LPH, 4+LPH, 3+LPH, 2+LPH, 1+LPH, 0+LPH},
-  {7,  8,  9,  10, 11, 12, XX, XX,      14+LPH, 13+LPH, 12+LPH, 11+LPH, 10+LPH, 9+LPH, 8+LPH, 7 +LPH},
-  {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LPH, 20+LPH, 19+LPH, 18+LPH, 17+LPH, 16+LPH, 15 +LPH},
-  {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LPH, 26+LPH, 25+LPH, 24+LPH, 23+LPH, 22 +LPH},
-  {26, 27, 28, 29, 30, 68, 69, XX,      69+LPH, 68+LPH, 33+LPH, 32+LPH, 31+LPH, 30+LPH, 29+LPH, 28+LPH}, 
+  {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LEDS_LEFT_KEYS, 5+LEDS_LEFT_KEYS, 4+LEDS_LEFT_KEYS, 3+LEDS_LEFT_KEYS, 2+LEDS_LEFT_KEYS, 1+LEDS_LEFT_KEYS, 0+LEDS_LEFT_KEYS},
+  {7,  8,  9,  10, 11, 12, XX, XX,      14+LEDS_LEFT_KEYS, 13+LEDS_LEFT_KEYS, 12+LEDS_LEFT_KEYS, 11+LEDS_LEFT_KEYS, 10+LEDS_LEFT_KEYS, 9+LEDS_LEFT_KEYS, 8+LEDS_LEFT_KEYS, 7 +LEDS_LEFT_KEYS},
+  {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LEDS_LEFT_KEYS, 20+LEDS_LEFT_KEYS, 19+LEDS_LEFT_KEYS, 18+LEDS_LEFT_KEYS, 17+LEDS_LEFT_KEYS, 16+LEDS_LEFT_KEYS, 15 +LEDS_LEFT_KEYS},
+  {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS},
+  {26, 27, 28, 29, 30, 31, 32, XX,      35+LEDS_LEFT_KEYS, 34+LEDS_LEFT_KEYS, 33+LEDS_LEFT_KEYS, 32+LEDS_LEFT_KEYS, 31+LEDS_LEFT_KEYS, 30+LEDS_LEFT_KEYS, 29+LEDS_LEFT_KEYS, 28+LEDS_LEFT_KEYS}, 
 };
 
-static constexpr uint8_t underglow_led_map[2][28] = {
-    { XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX },
-    { XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX, XX },
-};
+
+// maps keyboard led number (0->LED_COUNT-1) to the SLED led number (0-LPH-1 on left side  and LPH to LPH*2-1 on the right side)
+// LPH comes from keyboardioscanner.h - leds per hand = 72 defined by the size of the buffer used to transfer data to sides
+static constexpr uint8_t led_map[LED_COUNT] = {
+    // left side - 32/33 keys (ANSI/ISO) includes LP
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
+
+    // right side - 36 keys includes LP
+    0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 7+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 15+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH, 20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
+
+    // left under glow - 30
+    34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+
+    // right underglow - 32
+    34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH, 52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
+    };
+    
 
 void Raise::showAnalogRGB(cRGB rgb)
 {
@@ -87,19 +84,25 @@ void Raise::setup(void) {
   twi_init();
 }
 
+
+// i is number from 0 -> LED_COUNT - 1
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
-  if( i < LEDS_PER_HAND) {
-    cRGB oldColor = getCrgbAt(i);
-    leftHand.ledData.leds[i] = crgb;
+
+  // prevent reading off the end of the led_map array
+  if(i >= LED_COUNT)
+    return;
+
+  // get the SLED index
+  uint8_t sled_num = led_map[i];
+  if( sled_num < LPH) {
+    cRGB oldColor = getCrgbAt(sled_num);
+    leftHand.ledData.leds[ sled_num ] = crgb;
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
   }
-  else if( i < 2 * LEDS_PER_HAND) {
-    cRGB oldColor = getCrgbAt(i);
-    rightHand.ledData.leds[i-LEDS_PER_HAND] = crgb;
+  else if( sled_num < 2 * LPH) {
+    cRGB oldColor = getCrgbAt(sled_num);
+    rightHand.ledData.leds[ sled_num - LPH ] = crgb;
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
-  }
-  else if(i == XX ) {
-    // do nothing with missing leds
   } else {
     // TODO(anyone):
     // how do we want to handle debugging assertions about crazy user
@@ -107,19 +110,28 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
   }
 }
 
+// sets LED given row and col
 void Raise::setCrgbAt(byte row, byte col, cRGB color) {
   setCrgbAt(key_led_map[row][col], color);
 }
 
+// returns keyboard LED index
 uint8_t Raise::getLedIndex(byte row, byte col) {
   return key_led_map[row][col];
 }
 
+// i is number from 0 -> LED_COUNT - 1
+// returns LED colour given the keyboard LED index
 cRGB Raise::getCrgbAt(uint8_t i) {
-  if (i < LEDS_PER_HAND) {
-    return leftHand.ledData.leds[i];
-  } else if (i < 2*LEDS_PER_HAND) {
-    return rightHand.ledData.leds[i - LEDS_PER_HAND];
+  // prevent reading off the end of the led_map array
+  if(i >= LED_COUNT)
+    return {0, 0, 0};
+
+  uint8_t sled_num = led_map[i];
+  if (sled_num < LPH) {
+    return leftHand.ledData.leds[ sled_num ];
+  } else if (sled_num < 2 * LPH) {
+    return rightHand.ledData.leds[ sled_num - LPH ];
   } else {
     return {0, 0, 0};
   }

@@ -157,7 +157,11 @@ class Raise {
 
 
 // LEDS_PER_HAND defined in keyboardioscanner
-#define LED_COUNT LEDS_PER_HAND * 2 // total possible - not all connected
+#define LED_COUNT 131
+#define LEDS_LEFT 63
+#define LEDS_RIGHT 68
+#define LEDS_LEFT_KEYS 33
+#define LEDS_RIGHT_KEYS 36
 
 
 #define LED_PGDN 0
