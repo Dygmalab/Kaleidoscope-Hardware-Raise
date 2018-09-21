@@ -285,6 +285,10 @@ void Raise::attachToHost() {
   USBDevice.attach();
 }
 
+uint16_t Raise::readJoint(){
+  return rightHand.readJoint();
+}
+
 bool Raise::focusHook(const char *command) {
   enum {
     SIDE_VER,

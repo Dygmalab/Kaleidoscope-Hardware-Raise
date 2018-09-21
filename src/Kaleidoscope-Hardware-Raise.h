@@ -42,6 +42,7 @@ class Raise {
   void enableHighPowerLeds(void);
   void enableScannerPower(void);
   void rebootBootloader();
+  uint16_t readJoint();
 
   void attachToHost();
   void detachFromHost();
