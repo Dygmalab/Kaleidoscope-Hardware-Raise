@@ -84,10 +84,15 @@ class Raise {
   static keydata_t rightHandMask;
 };
 
+// pullup resistor installed on the sides indicates ANSI
+#define ANSI 1
+#define ISO 0
+
 #define FOCUS_HOOK_HARDWARE FOCUS_HOOK(Raise::focusHook,        \
                                            "hardware.keyscan\n" \
                                            "hardware.sled_ver\n" \
                                            "hardware.joint\n" \
+                                           "hardware.ansi_iso\n" \
                                            "hardware.cc\n" \
                                            "hardware.side_ver")
 

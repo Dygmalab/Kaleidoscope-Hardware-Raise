@@ -314,6 +314,7 @@ bool Raise::focusHook(const char *command) {
   enum {
     SIDE_VER,
     SLED_VER,
+    ANSI_ISO,
     KEYSCAN,
     JOINT,
     CC,
@@ -327,6 +328,8 @@ bool Raise::focusHook(const char *command) {
     subCommand = KEYSCAN;
   else if (strcmp_P(command + 9, PSTR("sled_ver")) == 0)
     subCommand = SLED_VER;
+  else if (strcmp_P(command + 9, PSTR("ansi_iso")) == 0)
+    subCommand = ANSI_ISO;
   else if (strcmp_P(command + 9, PSTR("joint")) == 0)
     subCommand = JOINT;
   else if (strcmp_P(command + 9, PSTR("cc")) == 0)
@@ -346,6 +349,12 @@ bool Raise::focusHook(const char *command) {
       SerialUSB.println(leftHand.readVersion());
       SerialUSB.print("right: ");
       SerialUSB.println(rightHand.readVersion());
+    break;
+  case ANSI_ISO:
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.readANSI_ISO() == ANSI ? "ANSI" : "ISO");
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.readANSI_ISO() == ANSI ? "ANSI": "ISO");
     break;
   case JOINT:
       SerialUSB.println(rightHand.readJoint());
