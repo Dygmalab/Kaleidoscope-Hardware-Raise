@@ -1,5 +1,6 @@
 #include <Kaleidoscope.h>
 #include <KeyboardioHID.h>
+#include <Kaleidoscope-EEPROM-Settings.h>
 //#include <avr/wdt.h>
 
 KeyboardioScanner Raise::leftHand(0);
@@ -7,6 +8,12 @@ KeyboardioScanner Raise::rightHand(1);
 bool Raise::isLEDChanged = true;
 keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
+
+Raise::settings_t Raise::settings = {
+  .keyscan = 40
+};
+
+uint16_t Raise::settings_base_;
 
 #define XX 0xFF // off
 
@@ -82,6 +89,20 @@ void Raise::setup(void) {
 
   // initialise Wire of scanner - have to do this here to avoid problem with static object intialisation ordering
   twi_init();
+
+  // load stored keyscanner interval into settings
+  settings_base_ = ::EEPROMSettings.requestSlice(sizeof(settings));
+  uint8_t keyscan = EEPROM.read(settings_base_);
+  if (keyscan == 0xff) {
+      EEPROM.update(settings_base_, settings.keyscan);
+      EEPROM.commit();
+  }
+    
+  settings.keyscan = EEPROM.read(settings_base_);
+  // update left and right side with stored keyscan interval
+  leftHand.setKeyscanInterval(settings.keyscan);
+  rightHand.setKeyscanInterval(settings.keyscan);
+
 }
 
 
@@ -344,12 +365,16 @@ bool Raise::focusHook(const char *command) {
       SerialUSB.print("right: ");
       SerialUSB.println(rightHand.readKeyscanInterval());
     } else {
-      uint8_t interval = SerialUSB.parseInt();
-      leftHand.setKeyscanInterval(interval);
-      rightHand.setKeyscanInterval(interval);
+      settings.keyscan = SerialUSB.parseInt();
+      EEPROM.update(settings_base_, settings.keyscan);
+      EEPROM.commit();
+      leftHand.setKeyscanInterval(settings.keyscan);
+      rightHand.setKeyscanInterval(settings.keyscan);
     }
     break;
   }
+
+
   return true;
 }
 

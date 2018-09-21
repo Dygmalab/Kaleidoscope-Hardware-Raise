@@ -68,7 +68,14 @@ class Raise {
   keydata_t previousLeftHandState;
   keydata_t previousRightHandState;
 
+  typedef struct settings_t {
+    uint8_t keyscan;
+  } settings_t;
+
+  static settings_t settings;
+
  private:
+  static uint16_t settings_base_;
   static bool isLEDChanged;
   static KeyboardioScanner leftHand;
   static KeyboardioScanner rightHand;
