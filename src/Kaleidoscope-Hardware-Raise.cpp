@@ -82,8 +82,9 @@ void Raise::setup(void) {
       for(int i = 0; i < 3; i ++)
           showAnalogRGB({100,0,0},i);
 
-  delay(1000);
+  delay(500);
   enableScannerPower();
+  delay(500);
 
   // Consider not doing this until 30s after keyboard
   // boot up, to make it easier to rescue things
