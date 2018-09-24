@@ -68,6 +68,8 @@ class Raise {
  private:
   static uint16_t settings_base_;
   static bool isLEDChanged;
+  static bool lastLeftOnline;
+  static bool lastRightOnline;
   static KeyboardioScanner leftHand;
   static KeyboardioScanner rightHand;
 
@@ -78,6 +80,7 @@ class Raise {
 #define FOCUS_HOOK_HARDWARE FOCUS_HOOK(Raise::focusHook,        \
                                            "hardware.keyscan\n" \
                                            "hardware.sled_ver\n" \
+                                           "hardware.side_on\n" \
                                            "hardware.side_ver")
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))
 

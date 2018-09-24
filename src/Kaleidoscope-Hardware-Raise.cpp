@@ -6,6 +6,8 @@
 KeyboardioScanner Raise::leftHand(0);
 KeyboardioScanner Raise::rightHand(3);
 bool Raise::isLEDChanged = true;
+bool Raise::lastLeftOnline = false;
+bool Raise::lastRightOnline = false;
 keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
 
@@ -150,6 +152,7 @@ cRGB Raise::getCrgbAt(uint8_t i) {
 }
 
 void Raise::syncLeds() {
+
   if (!isLEDChanged)
     return;
 
@@ -160,8 +163,8 @@ void Raise::syncLeds() {
   }
 
   for(int i = 0; i < 3; i ++)
-      showAnalogRGB( {leftHand.ledData.leds[1].r, leftHand.ledData.leds[1].g, leftHand.ledData.leds[1].b} , i);
-
+  showAnalogRGB( {leftHand.ledData.leds[1].r, leftHand.ledData.leds[1].g, leftHand.ledData.leds[1].b} , i);
+  
   isLEDChanged = false;
 }
 
@@ -200,6 +203,17 @@ void Raise::readMatrix() {
   if (rightHand.readKeys()) {
     rightHandState = rightHand.getKeyData();
   }
+
+  // if a side has just been replugged, resync leds
+  if(leftHand.online && ! lastLeftOnline)
+    isLEDChanged = true;
+  if(rightHand.online && ! lastRightOnline)
+    isLEDChanged = true;
+
+  // store previous state of whether the sides are plugged in
+  lastLeftOnline = leftHand.online;
+  lastRightOnline = rightHand.online;
+
 }
 
 
@@ -300,6 +314,7 @@ void Raise::attachToHost() {
 bool Raise::focusHook(const char *command) {
   enum {
     SIDE_VER,
+    SIDE_ON,
     SLED_VER,
     KEYSCAN,
   } subCommand;
@@ -308,6 +323,8 @@ bool Raise::focusHook(const char *command) {
     return false;
   if (strcmp_P(command + 9, PSTR("side_ver")) == 0)
     subCommand = SIDE_VER;
+  else if (strcmp_P(command + 9, PSTR("side_on")) == 0)
+    subCommand = SIDE_ON;
   else if (strcmp_P(command + 9, PSTR("keyscan")) == 0)
     subCommand = KEYSCAN;
   else if (strcmp_P(command + 9, PSTR("sled_ver")) == 0)
@@ -327,6 +344,12 @@ bool Raise::focusHook(const char *command) {
       SerialUSB.println(leftHand.readVersion());
       SerialUSB.print("right: ");
       SerialUSB.println(rightHand.readVersion());
+    break;
+  case SIDE_ON:
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.online);
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.online);
     break;
   case KEYSCAN:
     if (SerialUSB.peek() == '\n') {
