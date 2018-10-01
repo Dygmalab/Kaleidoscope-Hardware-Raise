@@ -170,9 +170,9 @@ class Raise {
 
 
 // LEDS_PER_HAND defined in keyboardioscanner
-#define LED_COUNT 131
-#define LEDS_LEFT 63
-#define LEDS_RIGHT 68
+#define LED_COUNT 133
+#define LEDS_LEFT 64
+#define LEDS_RIGHT 69
 #define LEDS_LEFT_KEYS 33
 #define LEDS_RIGHT_KEYS 36
 
