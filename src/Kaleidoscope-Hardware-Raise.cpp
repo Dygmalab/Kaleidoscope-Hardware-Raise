@@ -1,6 +1,7 @@
 #include <Kaleidoscope.h>
 #include <KeyboardioHID.h>
 #include <Kaleidoscope-EEPROM-Settings.h>
+#include <Adafruit_SleepyDog.h>
 //#include <avr/wdt.h>
 
 KeyboardioScanner Raise::leftHand(0);
@@ -102,6 +103,8 @@ void Raise::setup(void) {
   // update left and right side with stored keyscan interval
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
+
+  int countdownMS = Watchdog.enable(100);
 
 }
 
@@ -235,6 +238,7 @@ void Raise::actOnMatrixScan() {
 void Raise::scanMatrix() {
   readMatrix();
   actOnMatrixScan();
+  Watchdog.reset();
 }
 
 void Raise::rebootBootloader() {
