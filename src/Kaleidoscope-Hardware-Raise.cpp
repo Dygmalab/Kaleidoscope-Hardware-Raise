@@ -79,9 +79,9 @@ void Raise::setup(void) {
   while(analogRead(UFP_CC) < 100) // should be about 150. If it's 0 then we are powered through one of the side ports
       showAnalogRGB({100,0,0});
 
-  delay(500);
+  delay(10);
   enableScannerPower();
-  delay(200); // wait for sides bootloader to finish
+  delay(500); // wait for sides to power up and finish bootloader
 
   // Consider not doing this until 30s after keyboard
   // boot up, to make it easier to rescue things
