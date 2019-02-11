@@ -1,7 +1,7 @@
 #include <Kaleidoscope.h>
 #include <KeyboardioHID.h>
 #include <Kaleidoscope-EEPROM-Settings.h>
-//#include <avr/wdt.h>
+#include <Adafruit_SleepyDog.h>
 
 KeyboardioScanner Raise::leftHand(0);
 KeyboardioScanner Raise::rightHand(1);
@@ -41,10 +41,10 @@ static constexpr uint8_t led_map[LED_COUNT] = {
     0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 7+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 15+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH, 20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
 
     // left under glow - 30
-    34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, //67,
+    34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 67,
 
     // right underglow - 32
-    34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH, 52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH //, 67+LPH
+    34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH, 52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH, 67+LPH
     };
     
 
@@ -67,6 +67,20 @@ void Raise::enableScannerPower(void) {
 
 
 void Raise::setup(void) {
+  // first set all pins to outputs and low - EMC considerations
+  // not serial pins
+  for (int pin = 2; pin < 27; pin ++)
+  {
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, LOW);
+  }
+  // not USB pins
+  for (int pin = 30; pin < 43; pin ++)
+  {
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, LOW);
+  }
+
   pinMode(SIDE_POWER, OUTPUT);
   digitalWrite(SIDE_POWER, LOW);
 
@@ -76,8 +90,8 @@ void Raise::setup(void) {
   analogWriteResolution(16);
   showAnalogRGB({0,0,0});
 
-  while(analogRead(UFP_CC) < 100) // should be about 150. If it's 0 then we are powered through one of the side ports
-      showAnalogRGB({100,0,0});
+  //while(analogRead(UFP_CC) < 100) // should be about 150. If it's 0 then we are powered through one of the side ports
+  //    showAnalogRGB({100,0,0});
 
   delay(10);
   enableScannerPower();
@@ -104,7 +118,8 @@ void Raise::setup(void) {
   // update left and right side with stored keyscan interval
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
-
+  
+  int countdownMS = Watchdog.enable(100);
 }
 
 
@@ -237,6 +252,8 @@ void Raise::actOnMatrixScan() {
 void Raise::scanMatrix() {
   readMatrix();
   actOnMatrixScan();
+  Watchdog.reset();
+
 }
 
 void Raise::rebootBootloader() {
@@ -334,8 +351,10 @@ bool Raise::focusHook(const char *command) {
     subCommand = ANSI_ISO;
   else if (strcmp_P(command + 9, PSTR("joint")) == 0)
     subCommand = JOINT;
+    /*
   else if (strcmp_P(command + 9, PSTR("cc")) == 0)
     subCommand = CC;
+    */
   else
     return false;
 
@@ -361,6 +380,7 @@ bool Raise::focusHook(const char *command) {
   case JOINT:
       SerialUSB.println(rightHand.readJoint());
     break;
+    /*
   case CC:
       SerialUSB.print("UFP :");
       SerialUSB.println(analogRead(UFP_CC));
@@ -369,6 +389,7 @@ bool Raise::focusHook(const char *command) {
       SerialUSB.print("DFPR:");
       SerialUSB.println(analogRead(DFPR_CC));
     break;
+    */
   case KEYSCAN:
     if (SerialUSB.peek() == '\n') {
       SerialUSB.print("left: ");

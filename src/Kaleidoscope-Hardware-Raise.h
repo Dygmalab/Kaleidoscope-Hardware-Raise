@@ -11,10 +11,12 @@
 
 #define CRGB(r,g,b) (cRGB){r, g, b}
 
-// adc pins for USB C CC pins
+// adc pins for USB C CC pins - now unused
+/*
 #define UFP_CC  A1
 #define DFPL_CC A2
 #define DFPR_CC A3
+*/
 
 // led PWM pins pa9, pa8, pa15
 #define PWM_R 3
@@ -94,7 +96,6 @@ class Raise {
                                            "hardware.sled_current\n" \
                                            "hardware.joint\n" \
                                            "hardware.ansi_iso\n" \
-                                           "hardware.cc\n" \
                                            "hardware.side_ver")
 
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))
@@ -106,8 +107,8 @@ class Raise {
 #define LEDS_LEFT  LEDS_LEFT_KEYS  + LEDS_LEFT_UNDER
 #define LEDS_RIGHT LEDS_RIGHT_KEYS + LEDS_RIGHT_UNDER
 
-#define LEDS_LEFT_UNDER 30 // 31 includes 1 on LP
-#define LEDS_RIGHT_UNDER 32 // 33 includes 1 on LP
+#define LEDS_LEFT_UNDER 31 // 31 includes 1 on LP
+#define LEDS_RIGHT_UNDER 33 // 33 includes 1 on LP
 
 #define LEDS_LEFT_KEYS 33 // 32 for ANSI, 33 is ISO
 #define LEDS_RIGHT_KEYS 36
