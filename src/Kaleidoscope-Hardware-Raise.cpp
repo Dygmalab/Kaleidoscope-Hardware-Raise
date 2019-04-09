@@ -333,6 +333,7 @@ bool Raise::focusHook(const char *command) {
   enum {
     SIDE_VER,
     SLED_VER,
+    SLED_CURRENT,
     ANSI_ISO,
     KEYSCAN,
     JOINT,
@@ -347,6 +348,8 @@ bool Raise::focusHook(const char *command) {
     subCommand = KEYSCAN;
   else if (strcmp_P(command + 9, PSTR("sled_ver")) == 0)
     subCommand = SLED_VER;
+  else if (strcmp_P(command + 9, PSTR("sled_current")) == 0)
+    subCommand = SLED_CURRENT;
   else if (strcmp_P(command + 9, PSTR("ansi_iso")) == 0)
     subCommand = ANSI_ISO;
   else if (strcmp_P(command + 9, PSTR("joint")) == 0)
@@ -365,6 +368,24 @@ bool Raise::focusHook(const char *command) {
       SerialUSB.print("right: ");
       SerialUSB.println(rightHand.readSLEDVersion());
     break;
+  case SLED_CURRENT: {
+    if (SerialUSB.peek() == '\n') {
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.readSLEDCurrent());
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.readSLEDCurrent());
+    } else {
+      byte current = SerialUSB.parseInt();
+      leftHand.setSLEDCurrent(current);
+      rightHand.setSLEDCurrent(current);
+
+      SerialUSB.print("left: ");
+      SerialUSB.println(leftHand.readSLEDCurrent());
+      SerialUSB.print("right: ");
+      SerialUSB.println(rightHand.readSLEDCurrent());
+      }
+    break;
+    }
   case SIDE_VER:
       SerialUSB.print("left: ");
       SerialUSB.println(leftHand.readVersion());
