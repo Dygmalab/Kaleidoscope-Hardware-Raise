@@ -107,8 +107,8 @@ class Raise {
 #define LEDS_LEFT  LEDS_LEFT_KEYS  + LEDS_LEFT_UNDER
 #define LEDS_RIGHT LEDS_RIGHT_KEYS + LEDS_RIGHT_UNDER
 
-#define LEDS_LEFT_UNDER 31 // 31 includes 1 on LP
-#define LEDS_RIGHT_UNDER 33 // 33 includes 1 on LP
+#define LEDS_LEFT_UNDER 30 // 31 includes 1 on LP
+#define LEDS_RIGHT_UNDER 32 // 33 includes 1 on LP
 
 #define LEDS_LEFT_KEYS 33 // 32 for ANSI, 33 is ISO
 #define LEDS_RIGHT_KEYS 36
