@@ -120,7 +120,7 @@ void Raise::setup(void) {
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
   
-  int countdownMS = Watchdog.enable(100);
+  int countdownMS = Watchdog.enable(250); // milliseconds. 100 stops serial print from working...
 }
 
 
