@@ -65,6 +65,39 @@ class Raise {
   bool isKeyMasked(byte row, byte col);
   void maskHeldKeys(void);
 
+  /** Key switch states
+   *
+   * These methods offer a way to peek at the key switch states, for those cases
+   * where we need to deal with the state closest to the hardware. Some methods
+   * offer a way to check if a key is pressed, others return the number of
+   * pressed keys.
+   */
+  /**
+   * Check if a key is pressed at a given position.
+   *
+   * @param row is the row the key is located at in the matrix.
+   * @param col is the column the key is located at in the matrix.
+   *
+   * @returns true if the key is pressed, false otherwise.
+   */
+  bool isKeyswitchPressed(byte row, byte col);
+  /**
+   * Check if a key is pressed at a given position.
+   *
+   * @param keyIndex is the key index, as calculated by `keyIndex`.
+   *
+   * @note Key indexes start at 1, not 0!
+   *
+   * @returns true if the key is pressed, false otherwise.
+   */
+  bool isKeyswitchPressed(uint8_t keyIndex);
+  /**
+   * Check the number of key switches currently pressed.
+   *
+   * @returns the number of keys pressed.
+   */
+  uint8_t pressedKeyswitchCount();
+
   keydata_t leftHandState;
   keydata_t rightHandState;
   keydata_t previousLeftHandState;

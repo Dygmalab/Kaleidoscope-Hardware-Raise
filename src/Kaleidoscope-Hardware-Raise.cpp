@@ -311,6 +311,29 @@ bool Raise::isKeyMasked(byte row, byte col) {
   }
 }
 
+bool Raise::isKeyswitchPressed(byte row, byte col) {
+  if (col >= 8) {
+    return (bitRead(rightHandState.rows[row], 7 - (col - 8)) != 0);
+  } else {
+    return (bitRead(leftHandState.rows[row], 7 - col) != 0);
+  }
+}
+
+bool Raise::isKeyswitchPressed(uint8_t keyIndex) {
+  keyIndex--;
+  return isKeyswitchPressed(keyIndex / COLS, keyIndex % COLS);
+}
+
+uint8_t Raise::pressedKeyswitchCount() {
+  uint8_t count = 0;
+
+  for (uint8_t i = 0; i < ROWS * COLS; i++) {
+    count += bitRead(leftHandState.all, i) + bitRead(rightHandState.all, i);
+  }
+
+  return count;
+}
+
 
 void Raise::maskHeldKeys(void) {
   memcpy(leftHandMask.rows, leftHandState.rows, sizeof(leftHandMask));
