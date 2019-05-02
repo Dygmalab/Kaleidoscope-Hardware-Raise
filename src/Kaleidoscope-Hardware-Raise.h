@@ -112,6 +112,7 @@ class Raise {
  private:
   static uint16_t settings_base_;
   static bool isLEDChanged;
+  static uint8_t ansi_iso;
   static KeyboardioScanner leftHand;
   static KeyboardioScanner rightHand;
 

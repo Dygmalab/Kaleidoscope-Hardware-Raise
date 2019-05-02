@@ -6,6 +6,7 @@
 KeyboardioScanner Raise::leftHand(0);
 KeyboardioScanner Raise::rightHand(1);
 bool Raise::isLEDChanged = true;
+uint8_t Raise::ansi_iso = ANSI;
 keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
 
@@ -21,32 +22,61 @@ uint16_t Raise::settings_base_;
 // these are zero indexed led numbers from sled matrix
 // maps rows and columns to the keyboard led number (0->LED_COUNT-1)
 // 19 is missing for ANSI
-static constexpr uint8_t key_led_map[5][16] = {
-  {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LEDS_LEFT_KEYS, 5+LEDS_LEFT_KEYS, 4+LEDS_LEFT_KEYS, 3+LEDS_LEFT_KEYS, 2+LEDS_LEFT_KEYS, 1+LEDS_LEFT_KEYS, 0+LEDS_LEFT_KEYS},
-  {7,  8,  9,  10, 11, 12, XX, XX,      14+LEDS_LEFT_KEYS, 13+LEDS_LEFT_KEYS, 12+LEDS_LEFT_KEYS, 11+LEDS_LEFT_KEYS, 10+LEDS_LEFT_KEYS, 9+LEDS_LEFT_KEYS, 8+LEDS_LEFT_KEYS, 7 +LEDS_LEFT_KEYS},
-  {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LEDS_LEFT_KEYS, 20+LEDS_LEFT_KEYS, 19+LEDS_LEFT_KEYS, 18+LEDS_LEFT_KEYS, 17+LEDS_LEFT_KEYS, 16+LEDS_LEFT_KEYS, 15 +LEDS_LEFT_KEYS},
-  //{19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS}, // ISO
-  {XX, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS}, // ANSI
-  {26, 27, 28, 29, 30, XX, 31, 32,      35+LEDS_LEFT_KEYS, 34+LEDS_LEFT_KEYS, 33+LEDS_LEFT_KEYS, 32+LEDS_LEFT_KEYS, 31+LEDS_LEFT_KEYS, 30+LEDS_LEFT_KEYS, 29+LEDS_LEFT_KEYS, 28+LEDS_LEFT_KEYS}, 
+static constexpr uint8_t key_led_map[2][5][16] = {
+  {
+    // ISO
+    {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LEDS_LEFT_KEYS, 5+LEDS_LEFT_KEYS, 4+LEDS_LEFT_KEYS, 3+LEDS_LEFT_KEYS, 2+LEDS_LEFT_KEYS, 1+LEDS_LEFT_KEYS, 0+LEDS_LEFT_KEYS},
+    {7,  8,  9,  10, 11, 12, XX, XX,      14+LEDS_LEFT_KEYS, 13+LEDS_LEFT_KEYS, 12+LEDS_LEFT_KEYS, 11+LEDS_LEFT_KEYS, 10+LEDS_LEFT_KEYS, 9+LEDS_LEFT_KEYS, 8+LEDS_LEFT_KEYS, 7 +LEDS_LEFT_KEYS},
+    {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LEDS_LEFT_KEYS, 20+LEDS_LEFT_KEYS, 19+LEDS_LEFT_KEYS, 18+LEDS_LEFT_KEYS, 17+LEDS_LEFT_KEYS, 16+LEDS_LEFT_KEYS, 15 +LEDS_LEFT_KEYS},
+    {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS}, // ISO
+    {26, 27, 28, 29, 30, XX, 31, 32,      35+LEDS_LEFT_KEYS, 34+LEDS_LEFT_KEYS, 33+LEDS_LEFT_KEYS, 32+LEDS_LEFT_KEYS, 31+LEDS_LEFT_KEYS, 30+LEDS_LEFT_KEYS, 29+LEDS_LEFT_KEYS, 28+LEDS_LEFT_KEYS}, 
+  },
+  {
+    // ANSI
+    {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LEDS_LEFT_KEYS, 5+LEDS_LEFT_KEYS, 4+LEDS_LEFT_KEYS, 3+LEDS_LEFT_KEYS, 2+LEDS_LEFT_KEYS, 1+LEDS_LEFT_KEYS, 0+LEDS_LEFT_KEYS},
+    {7,  8,  9,  10, 11, 12, XX, XX,      14+LEDS_LEFT_KEYS, 13+LEDS_LEFT_KEYS, 12+LEDS_LEFT_KEYS, 11+LEDS_LEFT_KEYS, 10+LEDS_LEFT_KEYS, 9+LEDS_LEFT_KEYS, 8+LEDS_LEFT_KEYS, 7 +LEDS_LEFT_KEYS},
+    {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LEDS_LEFT_KEYS, 20+LEDS_LEFT_KEYS, 19+LEDS_LEFT_KEYS, 18+LEDS_LEFT_KEYS, 17+LEDS_LEFT_KEYS, 16+LEDS_LEFT_KEYS, 15 +LEDS_LEFT_KEYS},
+    {XX, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS}, // ANSI
+    {26, 27, 28, 29, 30, XX, 31, 32,      35+LEDS_LEFT_KEYS, 34+LEDS_LEFT_KEYS, 33+LEDS_LEFT_KEYS, 32+LEDS_LEFT_KEYS, 31+LEDS_LEFT_KEYS, 30+LEDS_LEFT_KEYS, 29+LEDS_LEFT_KEYS, 28+LEDS_LEFT_KEYS}, 
+    }
 };
-
 
 // maps keyboard led number (0->LED_COUNT-1) to the SLED led number (0-LPH-1 on left side  and LPH to LPH*2-1 on the right side)
 // LPH comes from keyboardioscanner.h - leds per hand = 72 defined by the size of the buffer used to transfer data to sides
-static constexpr uint8_t led_map[LED_COUNT] = {
-    // left side - 32/33 keys (ANSI/ISO) includes LP
-    // 19 is missing for ANSI layout
+static constexpr uint8_t led_map[2][LED_COUNT] = {
+  // ISO
+  {
+    // left side - 33 keys includes LP
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
 
     // right side - 36 keys includes LP
-    0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 7+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 15+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH, 20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
+    0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 7+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 15+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH,
+    20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
 
     // left under glow - 30
-    34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, // 67,
+    34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
 
     // right underglow - 32
-    34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH, 52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH, // 67+LPH
-    };
+    34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH,
+    52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
+  },
+  // ANSI
+  {
+    // left side - 32 keys includes LP: key 19 is missing for ANSI layout
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, XX, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
+
+    // right side - 36 keys includes LP
+    0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 7+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 15+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH,
+    20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
+
+    // left under glow - 30
+    34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+
+    // right underglow - 32
+    34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH, 52+LPH,
+    53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
+  }
+};
     
 
 void Raise::showAnalogRGB(cRGB rgb)
@@ -119,7 +149,17 @@ void Raise::setup(void) {
   // update left and right side with stored keyscan interval
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
-  
+ 
+  // for now get ANSI/ISO once at boot - will require sides to be plugged in at power
+  uint8_t l_ansi_iso = leftHand.readANSI_ISO();
+  uint8_t r_ansi_iso = rightHand.readANSI_ISO();
+
+  // setup ansi_iso variable, this will affect led mapping
+  if(l_ansi_iso == ANSI || r_ansi_iso == ANSI)
+    ansi_iso = ANSI;
+  else 
+    ansi_iso = ISO;
+
   int countdownMS = Watchdog.enable(250); // milliseconds. 100 stops serial print from working...
 }
 
@@ -132,7 +172,7 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
     return;
 
   // get the SLED index
-  uint8_t sled_num = led_map[i];
+  uint8_t sled_num = led_map[ansi_iso][i];
   if( sled_num < LPH) {
     cRGB oldColor = getCrgbAt(sled_num);
     leftHand.ledData.leds[ sled_num ] = crgb;
@@ -151,12 +191,12 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
 
 // sets LED given row and col
 void Raise::setCrgbAt(byte row, byte col, cRGB color) {
-  setCrgbAt(key_led_map[row][col], color);
+  setCrgbAt(key_led_map[ansi_iso][row][col], color);
 }
 
 // returns keyboard LED index
 uint8_t Raise::getLedIndex(byte row, byte col) {
-  return key_led_map[row][col];
+  return key_led_map[ansi_iso][row][col];
 }
 
 // i is number from 0 -> LED_COUNT - 1
@@ -166,7 +206,7 @@ cRGB Raise::getCrgbAt(uint8_t i) {
   if(i >= LED_COUNT)
     return {0, 0, 0};
 
-  uint8_t sled_num = led_map[i];
+  uint8_t sled_num = led_map[ansi_iso][i];
   if (sled_num < LPH) {
     return leftHand.ledData.leds[ sled_num ];
   } else if (sled_num < 2 * LPH) {
@@ -417,10 +457,7 @@ bool Raise::focusHook(const char *command) {
       SerialUSB.println(rightHand.readVersion());
     break;
   case ANSI_ISO:
-      SerialUSB.print("left: ");
-      SerialUSB.println(leftHand.readANSI_ISO() == ANSI ? "ANSI" : "ISO");
-      SerialUSB.print("right: ");
-      SerialUSB.println(rightHand.readANSI_ISO() == ANSI ? "ANSI": "ISO");
+      SerialUSB.println(ansi_iso == ANSI ? "ANSI": "ISO");
     break;
   case JOINT:
       SerialUSB.println(rightHand.readJoint());
