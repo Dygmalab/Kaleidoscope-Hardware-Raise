@@ -1,7 +1,13 @@
 #include <Kaleidoscope.h>
 #include <KeyboardioHID.h>
 #include <Kaleidoscope-EEPROM-Settings.h>
+#ifdef RAISE_WATCHDOG
 #include <Adafruit_SleepyDog.h>
+#endif
+
+namespace kaleidoscope {
+namespace hardware {
+namespace dygma {
 
 KeyboardioScanner Raise::leftHand(0);
 KeyboardioScanner Raise::rightHand(1);
@@ -106,7 +112,8 @@ void Raise::setup(void) {
 
   // initialise Wire of scanner - have to do this here to avoid problem with static object intialisation ordering
   twi_init();
-
+  
+  #if 0
   // load stored keyscanner interval into settings
   settings_base_ = ::EEPROMSettings.requestSlice(sizeof(settings));
   uint8_t keyscan = EEPROM.read(settings_base_);
@@ -120,7 +127,10 @@ void Raise::setup(void) {
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
   
+  #endif
+  #ifdef RAISE_WATCHDOG
   int countdownMS = Watchdog.enable(250); // milliseconds. 100 stops serial print from working...
+  #endif
 }
 
 
@@ -253,7 +263,9 @@ void Raise::actOnMatrixScan() {
 void Raise::scanMatrix() {
   readMatrix();
   actOnMatrixScan();
+  #ifdef RAISE_WATCHDOG
   Watchdog.reset();
+  #endif
 
 }
 
@@ -354,6 +366,7 @@ uint16_t Raise::readJoint(){
 }
 
 bool Raise::focusHook(const char *command) {
+#if 0
   enum {
     SIDE_VER,
     SLED_VER,
@@ -453,7 +466,10 @@ bool Raise::focusHook(const char *command) {
 
 
   return true;
+#endif
 }
-
+}
+}
+}
 
 HARDWARE_IMPLEMENTATION KeyboardHardware;

@@ -2,14 +2,32 @@
 
 #include <Arduino.h>
 
-#define HARDWARE_IMPLEMENTATION Raise
+#define HARDWARE_IMPLEMENTATION kaleidoscope::hardware::dygma::Raise
 #include "KeyboardioScanner.h"
 #include "Kaleidoscope-HIDAdaptor-KeyboardioHID.h"
 
-#define COLS 16
-#define ROWS 5
+#include "FlashStorage.h"
+#include "FlashAsEEPROM.h"
+
+//#define COLS 16
+//#define ROWS 5
+
+// LEDS_PER_HAND defined in keyboardioscanner
+
+//#define LED_COUNT LEDS_LEFT + LEDS_RIGHT
+#define LEDS_LEFT  LEDS_LEFT_KEYS  + LEDS_LEFT_UNDER
+#define LEDS_RIGHT LEDS_RIGHT_KEYS + LEDS_RIGHT_UNDER
+
+#define LEDS_LEFT_UNDER 30 // 31 includes 1 on LP
+#define LEDS_RIGHT_UNDER 32 // 33 includes 1 on LP
+
+#define LEDS_LEFT_KEYS 33 // 32 for ANSI, 33 is ISO
+#define LEDS_RIGHT_KEYS 36
 
 #define CRGB(r,g,b) (cRGB){r, g, b}
+
+#include "kaleidoscope/Hardware.h"
+#include "kaleidoscope/driver/Storage.h"
 
 // adc pins for USB C CC pins - now unused
 /*
@@ -26,9 +44,92 @@
 // side power switch pa10
 #define SIDE_POWER 1
 
-class Raise {
+namespace kaleidoscope {
+
+namespace driver {
+namespace storage {
+
+class FlashAsEEPROMStorage {
+ public:
+
+  FlashAsEEPROMStorage() {}
+
+
+  uint8_t read(int address) {
+    return EEPROM.read(address);
+  }
+  void write(int address, uint8_t value) {
+    return EEPROM.write(address, value);
+  }
+  void update(int address, uint8_t value) {
+    return EEPROM.update(address, value);
+  }
+  uint16_t length() {
+    return EEPROM.length();
+  }
+
+  template<typename T>
+  static T& get(uint16_t address, T& t) {
+    return EEPROM.get(address, t);
+  }
+
+  template<typename T>
+  static T& put(uint16_t address, T& t) {
+    EEPROM.put(address, t);
+  }
+
+  void commit() {
+    EEPROM.commit();
+  }
+};
+
+class DummyStorage {
+ public:
+  DummyStorage() {}
+
+  template<typename T>
+  static T& get(uint16_t offset, T& t) {
+  }
+
+  template<typename T>
+  static const T& put(uint16_t offset, T& t) {
+  }
+
+  uint8_t read(int idx) {
+  }
+
+  void write(int idx, uint8_t val) {
+  }
+
+  void update(int idx, uint8_t val) {
+  }
+
+  uint16_t length() {
+    return 0;
+  }
+
+  void commit() {}
+};
+
+}
+}
+
+namespace hardware {
+namespace dygma {
+
+KALEIDOSCOPE_HARDWARE_INVENTORY(dygma, Raise,
+                                WITH_STORAGE(FlashAsEEPROMStorage));
+
+
+class Raise: public kaleidoscope::Hardware<Raise> {
+  friend class kaleidoscope::Hardware<Raise>;
  public:
   Raise(void);
+
+  static constexpr byte matrix_rows = 5;
+  static constexpr byte matrix_columns = 16;
+  static constexpr int16_t led_count = LEDS_LEFT + LEDS_RIGHT;
+
   void syncLeds(void);
   void setCrgbAt(byte row, byte col, cRGB color);
   void setCrgbAt(uint8_t i, cRGB crgb);
@@ -109,6 +210,9 @@ class Raise {
 
   static settings_t settings;
 
+ protected:
+  kaleidoscope::driver::storage::FlashAsEEPROMStorage storage_;
+
  private:
   static uint16_t settings_base_;
   static bool isLEDChanged;
@@ -118,11 +222,15 @@ class Raise {
   static keydata_t leftHandMask;
   static keydata_t rightHandMask;
 };
+}
+}
+}
 
 // pullup resistor installed on the sides indicates ANSI
 #define ANSI 1
 #define ISO 0
 
+#if 0
 #define FOCUS_HOOK_HARDWARE FOCUS_HOOK(Raise::focusHook,        \
                                            "hardware.keyscan\n" \
                                            "hardware.sled_ver\n" \
@@ -131,20 +239,9 @@ class Raise {
                                            "hardware.ansi_iso\n" \
                                            "hardware.side_ver")
 
-#define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))
+#endif 
 
 
-// LEDS_PER_HAND defined in keyboardioscanner
-
-#define LED_COUNT LEDS_LEFT + LEDS_RIGHT
-#define LEDS_LEFT  LEDS_LEFT_KEYS  + LEDS_LEFT_UNDER
-#define LEDS_RIGHT LEDS_RIGHT_KEYS + LEDS_RIGHT_UNDER
-
-#define LEDS_LEFT_UNDER 30 // 31 includes 1 on LP
-#define LEDS_RIGHT_UNDER 32 // 33 includes 1 on LP
-
-#define LEDS_LEFT_KEYS 33 // 32 for ANSI, 33 is ISO
-#define LEDS_RIGHT_KEYS 36
 
 
 #define KEYMAP_STACKED(                                                 \
@@ -184,3 +281,4 @@ class Raise {
     {r4c0, r4c1, r4c2, r4c3, r4c4, XXX , r4c6, r4c7, r4c8, r4c9, r4c10, r4c11, r4c12, r4c13, r4c14, r4c15}, \
   }
 
+#include "kaleidoscope/hardware/key_indexes.h"
