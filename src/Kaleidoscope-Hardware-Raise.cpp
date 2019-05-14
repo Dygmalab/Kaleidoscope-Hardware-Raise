@@ -21,6 +21,7 @@ Raise::settings_t Raise::settings = {
 
 uint16_t Raise::settings_base_;
 
+
 #define XX 0xFF // off
 
 
@@ -113,21 +114,21 @@ void Raise::setup(void) {
   // initialise Wire of scanner - have to do this here to avoid problem with static object intialisation ordering
   twi_init();
   
-  #if 0
-  // load stored keyscanner interval into settings
   settings_base_ = ::EEPROMSettings.requestSlice(sizeof(settings));
-  uint8_t keyscan = EEPROM.read(settings_base_);
-  if (keyscan == 0xff) {
-      EEPROM.update(settings_base_, settings.keyscan);
-      EEPROM.commit();
+
+  // If keyscan is max, assume that EEPROM is uninitialized, and store the
+  // defaults.
+  uint16_t keyscan;
+  KeyboardHardware.storage().get(settings_base_, keyscan);
+  if (keyscan == 0xffff) {
+    KeyboardHardware.storage().put(settings_base_, settings);
+    KeyboardHardware.storage().commit();
   }
-    
-  settings.keyscan = EEPROM.read(settings_base_);
-  // update left and right side with stored keyscan interval
+
+  KeyboardHardware.storage().get(settings_base_, settings);
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
-  
-  #endif
+
   #ifdef RAISE_WATCHDOG
   int countdownMS = Watchdog.enable(250); // milliseconds. 100 stops serial print from working...
   #endif
@@ -398,11 +399,8 @@ uint8_t Raise::readLeftANSI_ISO() {
     return leftHand.readANSI_ISO();
 }
 
-void Raise::setRightSLEDCurrent(uint8_t current) {
+void Raise::setSLEDCurrent(uint8_t current) {
     rightHand.setSLEDCurrent(current);
-}
-
-void Raise::setLeftSLEDCurrent(uint8_t current) {
     leftHand.setSLEDCurrent(current);
 }
 
@@ -414,11 +412,11 @@ uint8_t Raise::readLeftKeyscanInterval() {
   return leftHand.readKeyscanInterval();
 }
 
-void Raise::setRightKeyscanInterval(uint8_t interval) {
+void Raise::setKeyscanInterval(uint8_t interval) {
+  settings.keyscan = interval;
+  KeyboardHardware.storage().put(settings_base_, settings);
+  KeyboardHardware.storage().commit();
   rightHand.setKeyscanInterval(interval);
-}
-
-void Raise::setLeftKeyscanInterval(uint8_t interval) {
   leftHand.setKeyscanInterval(interval);
 }
 

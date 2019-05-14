@@ -152,14 +152,12 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   uint8_t rightSLEDVersion();
   uint8_t readRightSLEDCurrent();
   uint8_t readLeftSLEDCurrent();
-  void setRightSLEDCurrent(uint8_t);
-  void setLeftSLEDCurrent(uint8_t);
+  void setSLEDCurrent(uint8_t);
   uint8_t readRightANSI_ISO();
   uint8_t readLeftANSI_ISO();
   uint8_t readRightKeyscanInterval();
   uint8_t readLeftKeyscanInterval();
-  void setRightKeyscanInterval(uint8_t);
-  void setLeftKeyscanInterval(uint8_t);
+  void setKeyscanInterval(uint8_t);
   uint16_t readJoint();
 
   void attachToHost();
@@ -220,7 +218,7 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   keydata_t previousRightHandState;
 
   typedef struct settings_t {
-    uint8_t keyscan;
+    uint16_t keyscan;
   } settings_t;
 
   static settings_t settings;

@@ -22,7 +22,6 @@ namespace kaleidoscope {
 namespace plugin {
 
 
-
 EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
   if (::Focus.handleHelp(command, PSTR("hardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.ansi_iso\nhardware.joint\nhardware.keyscan")))
     return EventHandlerResult::OK;
@@ -59,8 +58,7 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
     } else {
       uint8_t current;
       ::Focus.read(current);
-      KeyboardHardware.setLeftSLEDCurrent(current);
-      KeyboardHardware.setRightSLEDCurrent(current);
+      KeyboardHardware.setSLEDCurrent(current);
       return EventHandlerResult::EVENT_CONSUMED;
       }
 
@@ -89,11 +87,7 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
     } else {
       uint8_t keyscan;
       ::Focus.read(keyscan);
-      // settings.keyscan = keyscan;
-      // EEPROM.update(settings_base_, settings.keyscan);
-      // EEPROM.commit();
-      KeyboardHardware.setLeftKeyscanInterval(keyscan);
-      KeyboardHardware.setRightKeyscanInterval(keyscan);
+      KeyboardHardware.setKeyscanInterval(keyscan);
       return EventHandlerResult::EVENT_CONSUMED;
   }
 
