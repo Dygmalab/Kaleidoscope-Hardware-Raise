@@ -361,113 +361,67 @@ void Raise::attachToHost() {
   USBDevice.attach();
 }
 
+// all of this because the Hardware implementation can't also be of type Plugin - so no Focus hooks are available.
 uint16_t Raise::readJoint(){
   return rightHand.readJoint();
 }
 
-bool Raise::focusHook(const char *command) {
-#if 0
-  enum {
-    SIDE_VER,
-    SLED_VER,
-    SLED_CURRENT,
-    ANSI_ISO,
-    KEYSCAN,
-    JOINT,
-    CC,
-  } subCommand;
-
-  if (strncmp_P(command, PSTR("hardware."), 9) != 0)
-    return false;
-  if (strcmp_P(command + 9, PSTR("side_ver")) == 0)
-    subCommand = SIDE_VER;
-  else if (strcmp_P(command + 9, PSTR("keyscan")) == 0)
-    subCommand = KEYSCAN;
-  else if (strcmp_P(command + 9, PSTR("sled_ver")) == 0)
-    subCommand = SLED_VER;
-  else if (strcmp_P(command + 9, PSTR("sled_current")) == 0)
-    subCommand = SLED_CURRENT;
-  else if (strcmp_P(command + 9, PSTR("ansi_iso")) == 0)
-    subCommand = ANSI_ISO;
-  else if (strcmp_P(command + 9, PSTR("joint")) == 0)
-    subCommand = JOINT;
-    /*
-  else if (strcmp_P(command + 9, PSTR("cc")) == 0)
-    subCommand = CC;
-    */
-  else
-    return false;
-
-  switch (subCommand) {
-  case SLED_VER:
-      SerialUSB.print("left: ");
-      SerialUSB.println(leftHand.readSLEDVersion());
-      SerialUSB.print("right: ");
-      SerialUSB.println(rightHand.readSLEDVersion());
-    break;
-  case SLED_CURRENT: {
-    if (SerialUSB.peek() == '\n') {
-      SerialUSB.print("left: ");
-      SerialUSB.println(leftHand.readSLEDCurrent());
-      SerialUSB.print("right: ");
-      SerialUSB.println(rightHand.readSLEDCurrent());
-    } else {
-      byte current = SerialUSB.parseInt();
-      leftHand.setSLEDCurrent(current);
-      rightHand.setSLEDCurrent(current);
-
-      SerialUSB.print("left: ");
-      SerialUSB.println(leftHand.readSLEDCurrent());
-      SerialUSB.print("right: ");
-      SerialUSB.println(rightHand.readSLEDCurrent());
-      }
-    break;
-    }
-  case SIDE_VER:
-      SerialUSB.print("left: ");
-      SerialUSB.println(leftHand.readVersion());
-      SerialUSB.print("right: ");
-      SerialUSB.println(rightHand.readVersion());
-    break;
-  case ANSI_ISO:
-      SerialUSB.print("left: ");
-      SerialUSB.println(leftHand.readANSI_ISO() == ANSI ? "ANSI" : "ISO");
-      SerialUSB.print("right: ");
-      SerialUSB.println(rightHand.readANSI_ISO() == ANSI ? "ANSI": "ISO");
-    break;
-  case JOINT:
-      SerialUSB.println(rightHand.readJoint());
-    break;
-    /*
-  case CC:
-      SerialUSB.print("UFP :");
-      SerialUSB.println(analogRead(UFP_CC));
-      SerialUSB.print("DFPL:");
-      SerialUSB.println(analogRead(DFPL_CC));
-      SerialUSB.print("DFPR:");
-      SerialUSB.println(analogRead(DFPR_CC));
-    break;
-    */
-  case KEYSCAN:
-    if (SerialUSB.peek() == '\n') {
-      SerialUSB.print("left: ");
-      SerialUSB.println(leftHand.readKeyscanInterval());
-      SerialUSB.print("right: ");
-      SerialUSB.println(rightHand.readKeyscanInterval());
-    } else {
-      settings.keyscan = SerialUSB.parseInt();
-      EEPROM.update(settings_base_, settings.keyscan);
-      EEPROM.commit();
-      leftHand.setKeyscanInterval(settings.keyscan);
-      rightHand.setKeyscanInterval(settings.keyscan);
-    }
-    break;
-  }
-
-
-  return true;
-#endif
+uint8_t Raise::leftVersion() {
+    return leftHand.readVersion();
 }
+
+uint8_t Raise::rightVersion() {
+    return rightHand.readVersion();
+}
+
+uint8_t Raise::rightSLEDVersion() {
+    return rightHand.readSLEDVersion();
+}
+
+uint8_t Raise::leftSLEDVersion() {
+    return leftHand.readSLEDVersion();
+}
+
+uint8_t Raise::readLeftSLEDCurrent() {
+    return leftHand.readSLEDCurrent();
+}
+
+uint8_t Raise::readRightSLEDCurrent() {
+    return rightHand.readSLEDCurrent();
+}
+
+uint8_t Raise::readRightANSI_ISO() {
+    return rightHand.readANSI_ISO();
+}
+
+uint8_t Raise::readLeftANSI_ISO() {
+    return leftHand.readANSI_ISO();
+}
+
+void Raise::setRightSLEDCurrent(uint8_t current) {
+    rightHand.setSLEDCurrent(current);
+}
+
+void Raise::setLeftSLEDCurrent(uint8_t current) {
+    leftHand.setSLEDCurrent(current);
+}
+
+uint8_t Raise::readRightKeyscanInterval() {
+  return rightHand.readKeyscanInterval();
+}
+
+uint8_t Raise::readLeftKeyscanInterval() {
+  return leftHand.readKeyscanInterval();
+}
+
+void Raise::setRightKeyscanInterval(uint8_t interval) {
+  rightHand.setKeyscanInterval(interval);
+}
+
+void Raise::setLeftKeyscanInterval(uint8_t interval) {
+  leftHand.setKeyscanInterval(interval);
+}
+
 }
 }
 }

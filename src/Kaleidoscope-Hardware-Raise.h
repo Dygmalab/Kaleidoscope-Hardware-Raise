@@ -145,6 +145,21 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   void enableHighPowerLeds(void);
   void enableScannerPower(void);
   void rebootBootloader();
+  /* focus calls */
+  uint8_t leftVersion();
+  uint8_t rightVersion();
+  uint8_t leftSLEDVersion();
+  uint8_t rightSLEDVersion();
+  uint8_t readRightSLEDCurrent();
+  uint8_t readLeftSLEDCurrent();
+  void setRightSLEDCurrent(uint8_t);
+  void setLeftSLEDCurrent(uint8_t);
+  uint8_t readRightANSI_ISO();
+  uint8_t readLeftANSI_ISO();
+  uint8_t readRightKeyscanInterval();
+  uint8_t readLeftKeyscanInterval();
+  void setRightKeyscanInterval(uint8_t);
+  void setLeftKeyscanInterval(uint8_t);
   uint16_t readJoint();
 
   void attachToHost();
@@ -209,6 +224,7 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   } settings_t;
 
   static settings_t settings;
+  
 
  protected:
   kaleidoscope::driver::storage::FlashAsEEPROMStorage storage_;
@@ -230,16 +246,6 @@ class Raise: public kaleidoscope::Hardware<Raise> {
 #define ANSI 1
 #define ISO 0
 
-#if 0
-#define FOCUS_HOOK_HARDWARE FOCUS_HOOK(Raise::focusHook,        \
-                                           "hardware.keyscan\n" \
-                                           "hardware.sled_ver\n" \
-                                           "hardware.sled_current\n" \
-                                           "hardware.joint\n" \
-                                           "hardware.ansi_iso\n" \
-                                           "hardware.side_ver")
-
-#endif 
 
 
 
