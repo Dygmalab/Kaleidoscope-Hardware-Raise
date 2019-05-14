@@ -24,7 +24,7 @@ namespace plugin {
 
 
 EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
-  if (::Focus.handleHelp(command, PSTR("hardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.ansi_iso\nhardware.joint")))
+  if (::Focus.handleHelp(command, PSTR("hardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.ansi_iso\nhardware.joint\nhardware.keyscan")))
     return EventHandlerResult::OK;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
