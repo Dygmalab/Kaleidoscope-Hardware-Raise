@@ -63,10 +63,7 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
       }
 
   if (strcmp_P(command + 9, PSTR("ansi_iso")) == 0) {
-      ::Focus.send("left: ");
-      ::Focus.send(KeyboardHardware.readLeftANSI_ISO() == ANSI ? "ANSI" : "ISO");
-      ::Focus.send("\nright: ");
-      ::Focus.send(KeyboardHardware.readRightANSI_ISO() == ANSI ? "ANSI": "ISO");
+      ::Focus.send(KeyboardHardware.readANSI_ISO() == ANSI ? "ANSI" : "ISO");
       ::Focus.send("\n");
       return EventHandlerResult::EVENT_CONSUMED;
       }

@@ -153,8 +153,7 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   uint8_t readRightSLEDCurrent();
   uint8_t readLeftSLEDCurrent();
   void setSLEDCurrent(uint8_t);
-  uint8_t readRightANSI_ISO();
-  uint8_t readLeftANSI_ISO();
+  uint8_t readANSI_ISO();
   uint8_t readRightKeyscanInterval();
   uint8_t readLeftKeyscanInterval();
   void setKeyscanInterval(uint8_t);
@@ -230,6 +229,7 @@ class Raise: public kaleidoscope::Hardware<Raise> {
  private:
   static uint16_t settings_base_;
   static bool isLEDChanged;
+  static uint8_t ansi_iso;
   static KeyboardioScanner leftHand;
   static KeyboardioScanner rightHand;
 
