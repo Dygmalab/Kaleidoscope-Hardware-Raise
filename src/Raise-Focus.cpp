@@ -23,18 +23,21 @@ namespace plugin {
 
 
 EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
-  if (::Focus.handleHelp(command, PSTR("hardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.ansi_iso\nhardware.joint\nhardware.keyscan")))
+  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.ansi_iso\nhardware.joint\nhardware.keyscan")))
     return EventHandlerResult::OK;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
     return EventHandlerResult::OK;
+
+  if (strcmp_P(command + 9, PSTR("version")) == 0) {
+      ::Focus.send("Dygma Raise");
+  }
 
   if (strcmp_P(command + 9, PSTR("side_ver")) == 0) {
       ::Focus.send("left: ");
       ::Focus.send(KeyboardHardware.leftVersion());
       ::Focus.send("\nright: ");
       ::Focus.send(KeyboardHardware.rightVersion());
-      ::Focus.send("\n");
     return EventHandlerResult::EVENT_CONSUMED;
     }
 
@@ -43,7 +46,6 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
       ::Focus.send(KeyboardHardware.leftSLEDVersion());
       ::Focus.send("\nright: ");
       ::Focus.send(KeyboardHardware.rightSLEDVersion());
-      ::Focus.send("\n");
     return EventHandlerResult::EVENT_CONSUMED;
     }
 
@@ -53,7 +55,6 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
       ::Focus.send(KeyboardHardware.readLeftSLEDCurrent());
       ::Focus.send("\nright: ");
       ::Focus.send(KeyboardHardware.readRightSLEDCurrent());
-      ::Focus.send("\n");
       return EventHandlerResult::EVENT_CONSUMED;
     } else {
       uint8_t current;
@@ -64,7 +65,6 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
 
   if (strcmp_P(command + 9, PSTR("ansi_iso")) == 0) {
       ::Focus.send(KeyboardHardware.readANSI_ISO() == ANSI ? "ANSI" : "ISO");
-      ::Focus.send("\n");
       return EventHandlerResult::EVENT_CONSUMED;
       }
 
@@ -79,7 +79,6 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
       ::Focus.send(KeyboardHardware.readLeftKeyscanInterval());
       ::Focus.send("\nright: ");
       ::Focus.send(KeyboardHardware.readRightKeyscanInterval());
-      ::Focus.send("\n");
       return EventHandlerResult::EVENT_CONSUMED;
     } else {
       uint8_t keyscan;
