@@ -17,7 +17,7 @@ keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
 
 Raise::settings_t Raise::settings = {
-  .keyscan = 40
+  .keyscan = 50
 };
 
 uint16_t Raise::settings_base_;
