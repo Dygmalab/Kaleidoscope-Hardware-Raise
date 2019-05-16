@@ -43,7 +43,7 @@ static constexpr uint8_t key_led_map[2][5][16] = {
     {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LEDS_LEFT_KEYS, 5+LEDS_LEFT_KEYS, 4+LEDS_LEFT_KEYS, 3+LEDS_LEFT_KEYS, 2+LEDS_LEFT_KEYS, 1+LEDS_LEFT_KEYS, 0+LEDS_LEFT_KEYS},
     {7,  8,  9,  10, 11, 12, XX, XX,      14+LEDS_LEFT_KEYS, 13+LEDS_LEFT_KEYS, 12+LEDS_LEFT_KEYS, 11+LEDS_LEFT_KEYS, 10+LEDS_LEFT_KEYS, 9+LEDS_LEFT_KEYS, 8+LEDS_LEFT_KEYS, 7 +LEDS_LEFT_KEYS},
     {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LEDS_LEFT_KEYS, 20+LEDS_LEFT_KEYS, 19+LEDS_LEFT_KEYS, 18+LEDS_LEFT_KEYS, 17+LEDS_LEFT_KEYS, 16+LEDS_LEFT_KEYS, 15 +LEDS_LEFT_KEYS},
-    {XX, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS}, // ANSI
+    {19, XX, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS}, // ANSI
     {26, 27, 28, 29, 30, XX, 31, 32,      35+LEDS_LEFT_KEYS, 34+LEDS_LEFT_KEYS, 33+LEDS_LEFT_KEYS, 32+LEDS_LEFT_KEYS, 31+LEDS_LEFT_KEYS, 30+LEDS_LEFT_KEYS, 29+LEDS_LEFT_KEYS, 28+LEDS_LEFT_KEYS}, 
     }
 };
@@ -70,10 +70,10 @@ static constexpr uint8_t led_map[2][LED_COUNT] = {
   // ANSI
   {
     // left side - 32 keys includes LP: key 19 is missing for ANSI layout
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, XX, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, XX, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
 
     // right side - 36 keys includes LP
-    0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 7+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 15+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH,
+    0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 15+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 7+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH,
     20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
 
     // left under glow - 30
@@ -273,10 +273,24 @@ void Raise::readMatrix() {
 
   if (leftHand.readKeys()) {
     leftHandState = leftHand.getKeyData();
+    // if ANSI, then swap r3c0 and r3c1 to match the PCB
+    if(ansi_iso == ANSI)
+        if((leftHandState.rows[3] & (1 << 0)) ^ leftHandState.rows[3] & (1 << 1)) // only swap if bits are different
+        {
+            leftHandState.rows[3] ^= (1 << 0); // flip the bit
+            leftHandState.rows[3] ^= (1 << 1); // flip the bit
+        }
   }
 
   if (rightHand.readKeys()) {
     rightHandState = rightHand.getKeyData();
+    // if ANSI, then swap r1c0 and r2c0 to match the PCB
+    if(ansi_iso == ANSI)
+        if((rightHandState.rows[1] & (1 << 0)) ^ rightHandState.rows[2] & (1 << 0))
+        {
+            rightHandState.rows[1] ^= (1 << 0);
+            rightHandState.rows[2] ^= (1 << 0);
+        }
   }
 }
 
@@ -288,13 +302,16 @@ void Raise::actOnMatrixScan() {
 
       uint8_t keynum = (row * 8) + (col);
 
-      uint8_t keyState = (bitRead(previousLeftHandState.all, keynum) << 0) |
-                         (bitRead(leftHandState.all, keynum) << 1);
+      uint8_t keyState;
+      
+      // left
+      keyState = (bitRead(previousLeftHandState.all, keynum) << 0) |
+                 (bitRead(leftHandState.all, keynum) << 1);
       handleKeyswitchEvent(Key_NoKey, row,  col, keyState);
 
+      // right
       keyState = (bitRead(previousRightHandState.all, keynum) << 0) |
                  (bitRead(rightHandState.all, keynum) << 1);
-
       handleKeyswitchEvent(Key_NoKey, row, (15 - col), keyState);
     }
   }
