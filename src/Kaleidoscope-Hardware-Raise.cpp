@@ -1,6 +1,7 @@
 #include <Kaleidoscope.h>
 #include <KeyboardioHID.h>
 #include <Kaleidoscope-EEPROM-Settings.h>
+#define RAISE_WATCHDOG
 #ifdef RAISE_WATCHDOG
 #include <Adafruit_SleepyDog.h>
 #endif
