@@ -34,26 +34,26 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
   }
 
   if (strcmp_P(command + 9, PSTR("side_ver")) == 0) {
-      ::Focus.send("left: ");
+      ::Focus.send("left:");
       ::Focus.send(KeyboardHardware.leftVersion());
-      ::Focus.send("\nright: ");
+      ::Focus.send("\nright:");
       ::Focus.send(KeyboardHardware.rightVersion());
     return EventHandlerResult::EVENT_CONSUMED;
     }
 
   if (strcmp_P(command + 9, PSTR("sled_ver")) == 0) {
-      ::Focus.send("left: ");
+      ::Focus.send("left:");
       ::Focus.send(KeyboardHardware.leftSLEDVersion());
-      ::Focus.send("\nright: ");
+      ::Focus.send("\nright:");
       ::Focus.send(KeyboardHardware.rightSLEDVersion());
     return EventHandlerResult::EVENT_CONSUMED;
     }
 
   if (strcmp_P(command + 9, PSTR("sled_current")) == 0)
     if (::Focus.isEOL()) {
-      ::Focus.send("left: ");
+      ::Focus.send("left:");
       ::Focus.send(KeyboardHardware.readLeftSLEDCurrent());
-      ::Focus.send("\nright: ");
+      ::Focus.send("\nright:");
       ::Focus.send(KeyboardHardware.readRightSLEDCurrent());
       return EventHandlerResult::EVENT_CONSUMED;
     } else {
@@ -75,9 +75,9 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
   
   if (strcmp_P(command + 9, PSTR("keyscan")) == 0)
     if (::Focus.isEOL()) {
-      ::Focus.send("left: ");
+      ::Focus.send("left:");
       ::Focus.send(KeyboardHardware.readLeftKeyscanInterval());
-      ::Focus.send("\nright: ");
+      ::Focus.send("\nright:");
       ::Focus.send(KeyboardHardware.readRightKeyscanInterval());
       return EventHandlerResult::EVENT_CONSUMED;
     } else {
