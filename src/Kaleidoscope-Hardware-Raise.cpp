@@ -171,8 +171,9 @@ void Raise::setup(void) {
     ansi_iso = ISO;
 
   #ifdef RAISE_WATCHDOG
-  int countdownMS = Watchdog.enable(250); // milliseconds. 100 stops serial print from working...
+  int countdownMS = Watchdog.enable(1000); // milliseconds. 100 stops serial print from working...
   #endif
+
 }
 
 
@@ -325,7 +326,6 @@ void Raise::scanMatrix() {
   #ifdef RAISE_WATCHDOG
   Watchdog.reset();
   #endif
-
 }
 
 void Raise::rebootBootloader() {
