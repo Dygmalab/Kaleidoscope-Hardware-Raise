@@ -171,7 +171,7 @@ void Raise::setup(void) {
     ansi_iso = ISO;
 
   #ifdef RAISE_WATCHDOG
-  int countdownMS = Watchdog.enable(1000); // milliseconds. 100 stops serial print from working...
+  int countdownMS = Watchdog.enable(500); // milliseconds. 100 stops serial print from working...
   #endif
 
 }
@@ -349,6 +349,7 @@ void Raise::rebootBootloader() {
   // happens before the watchdog reboots us
 }
 
+// these need checking
 void Raise::maskKey(byte row, byte col) {
   if (row >= ROWS || col >= COLS)
     return;
@@ -382,11 +383,12 @@ bool Raise::isKeyMasked(byte row, byte col) {
   }
 }
 
+// this works at least for the left side
 bool Raise::isKeyswitchPressed(byte row, byte col) {
   if (col >= 8) {
-    return (bitRead(rightHandState.rows[row], 7 - (col - 8)) != 0);
+    return (bitRead(rightHandState.rows[row], 15 - col ) != 0);
   } else {
-    return (bitRead(leftHandState.rows[row], 7 - col) != 0);
+    return (bitRead(leftHandState.rows[row], col) != 0);
   }
 }
 
