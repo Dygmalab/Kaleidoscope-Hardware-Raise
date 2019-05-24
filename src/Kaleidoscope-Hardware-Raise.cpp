@@ -16,83 +16,20 @@ bool Raise::isLEDChanged = true;
 uint8_t Raise::ansi_iso = ANSI;
 keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
+cRGB Raise::hubleLED = {0,0,0};
+uint16_t Raise::settings_base_;
 
 Raise::settings_t Raise::settings = {
   .keyscan = 50
 };
 
-uint16_t Raise::settings_base_;
 
-
-#define XX 0xFF // off
-
-
-// these are zero indexed led numbers from sled matrix
-// maps rows and columns to the keyboard led number (0->LED_COUNT-1)
-// 19 is missing for ANSI
-static constexpr uint8_t key_led_map[2][5][16] = {
-  {
-    // ISO
-    {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LEDS_LEFT_KEYS, 5+LEDS_LEFT_KEYS, 4+LEDS_LEFT_KEYS, 3+LEDS_LEFT_KEYS, 2+LEDS_LEFT_KEYS, 1+LEDS_LEFT_KEYS, 0+LEDS_LEFT_KEYS},
-    {7,  8,  9,  10, 11, 12, XX, XX,      14+LEDS_LEFT_KEYS, 13+LEDS_LEFT_KEYS, 12+LEDS_LEFT_KEYS, 11+LEDS_LEFT_KEYS, 10+LEDS_LEFT_KEYS, 9+LEDS_LEFT_KEYS, 8+LEDS_LEFT_KEYS, 7 +LEDS_LEFT_KEYS},
-    {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LEDS_LEFT_KEYS, 20+LEDS_LEFT_KEYS, 19+LEDS_LEFT_KEYS, 18+LEDS_LEFT_KEYS, 17+LEDS_LEFT_KEYS, 16+LEDS_LEFT_KEYS, 15 +LEDS_LEFT_KEYS},
-    {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS}, // ISO
-    {26, 27, 28, 29, 30, XX, 31, 32,      35+LEDS_LEFT_KEYS, 34+LEDS_LEFT_KEYS, 33+LEDS_LEFT_KEYS, 32+LEDS_LEFT_KEYS, 31+LEDS_LEFT_KEYS, 30+LEDS_LEFT_KEYS, 29+LEDS_LEFT_KEYS, 28+LEDS_LEFT_KEYS}, 
-  },
-  {
-    // ANSI
-    {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LEDS_LEFT_KEYS, 5+LEDS_LEFT_KEYS, 4+LEDS_LEFT_KEYS, 3+LEDS_LEFT_KEYS, 2+LEDS_LEFT_KEYS, 1+LEDS_LEFT_KEYS, 0+LEDS_LEFT_KEYS},
-    {7,  8,  9,  10, 11, 12, XX, XX,      14+LEDS_LEFT_KEYS, 13+LEDS_LEFT_KEYS, 12+LEDS_LEFT_KEYS, 11+LEDS_LEFT_KEYS, 10+LEDS_LEFT_KEYS, 9+LEDS_LEFT_KEYS, 8+LEDS_LEFT_KEYS, 7 +LEDS_LEFT_KEYS},
-    {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LEDS_LEFT_KEYS, 20+LEDS_LEFT_KEYS, 19+LEDS_LEFT_KEYS, 18+LEDS_LEFT_KEYS, 17+LEDS_LEFT_KEYS, 16+LEDS_LEFT_KEYS, 15 +LEDS_LEFT_KEYS},
-    {19, XX, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LEDS_LEFT_KEYS, 26+LEDS_LEFT_KEYS, 25+LEDS_LEFT_KEYS, 24+LEDS_LEFT_KEYS, 23+LEDS_LEFT_KEYS, 22 +LEDS_LEFT_KEYS}, // ANSI
-    {26, 27, 28, 29, 30, XX, 31, 32,      35+LEDS_LEFT_KEYS, 34+LEDS_LEFT_KEYS, 33+LEDS_LEFT_KEYS, 32+LEDS_LEFT_KEYS, 31+LEDS_LEFT_KEYS, 30+LEDS_LEFT_KEYS, 29+LEDS_LEFT_KEYS, 28+LEDS_LEFT_KEYS}, 
-    }
-};
-
-// maps keyboard led number (0->LED_COUNT-1) to the SLED led number (0-LPH-1 on left side  and LPH to LPH*2-1 on the right side)
-// LPH comes from keyboardioscanner.h - leds per hand = 72 defined by the size of the buffer used to transfer data to sides
-static constexpr uint8_t led_map[2][LED_COUNT] = {
-  // ISO
-  {
-    // left side - 33 keys includes LP
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
-
-    // right side - 36 keys includes LP
-    0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 7+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 15+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH,
-    20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
-
-    // left under glow - 30
-    34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-
-    // right underglow - 32
-    34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH,
-    52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
-  },
-  // ANSI
-  {
-    // left side - 32 keys includes LP: key 19 is missing for ANSI layout
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, XX, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
-
-    // right side - 36 keys includes LP
-    0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 15+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 7+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH,
-    20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
-
-    // left under glow - 30
-    34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-
-    // right underglow - 32
-    34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH, 52+LPH,
-    53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
-  }
-};
-    
-
-void Raise::showAnalogRGB(cRGB rgb)
+void Raise::updateHubleLED()
 {
     // invert as these are common anode, and make sure we reach 65535 to be able to turn fully off.
-    analogWrite(PWM_R, ((256-pgm_read_byte(&gamma8[rgb.r])) << 8) -1 );
-    analogWrite(PWM_G, ((256-pgm_read_byte(&gamma8[rgb.g])) << 8) -1 );
-    analogWrite(PWM_B, ((256-pgm_read_byte(&gamma8[rgb.b])) << 8) -1 );
+    analogWrite(PWM_R, ((256-pgm_read_byte(&gamma8[hubleLED.r])) << 8) -1 );
+    analogWrite(PWM_G, ((256-pgm_read_byte(&gamma8[hubleLED.g])) << 8) -1 );
+    analogWrite(PWM_B, ((256-pgm_read_byte(&gamma8[hubleLED.b])) << 8) -1 );
 }
 
 Raise::Raise(void) {
@@ -124,13 +61,13 @@ void Raise::setup(void) {
   digitalWrite(SIDE_POWER, LOW);
 
   // arduino zero analogWrite(255) isn't fully on as its actually working with a 16bit counter and the mapping is a bit shift.
-  // so change to 16 bit resolution to avoid the mapping and do the mapping ourselves in showAnalogRGB() to ensure LEDs can be
+  // so change to 16 bit resolution to avoid the mapping and do the mapping ourselves in updateHubleLED() to ensure LEDs can be
   // set fully off
   analogWriteResolution(16);
-  showAnalogRGB({0,0,0});
+  updateHubleLED();
 
   //while(analogRead(UFP_CC) < 100) // should be about 150. If it's 0 then we are powered through one of the side ports
-  //    showAnalogRGB({100,0,0});
+  //    updateHubleLED({100,0,0});
 
   delay(10);
   enableScannerPower();
@@ -164,7 +101,7 @@ void Raise::setup(void) {
   uint8_t l_ansi_iso = leftHand.readANSI_ISO();
   uint8_t r_ansi_iso = rightHand.readANSI_ISO();
 
-  // setup ansi_iso variable, this will affect led mapping
+  // setup ansi_iso variable, this will affect led mapping - defaults to ISO if nothing reported
   if(l_ansi_iso == ANSI || r_ansi_iso == ANSI)
     ansi_iso = ANSI;
   else 
@@ -181,8 +118,16 @@ void Raise::setup(void) {
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
 
   // prevent reading off the end of the led_map array
-  if(i >= LED_COUNT)
+  if(i >= led_count)
     return;
+
+  // huble LED
+  if(i == led_count - 1)
+  {
+    isLEDChanged |= !(hubleLED.r == crgb.r && hubleLED.g == crgb.g && hubleLED.b == crgb.b);
+    hubleLED = crgb;
+    return;
+  }
 
   // get the SLED index
   uint8_t sled_num = led_map[ansi_iso][i];
@@ -216,7 +161,7 @@ uint8_t Raise::getLedIndex(byte row, byte col) {
 // returns LED colour given the keyboard LED index
 cRGB Raise::getCrgbAt(uint8_t i) {
   // prevent reading off the end of the led_map array
-  if(i >= LED_COUNT)
+  if(i >= led_count)
     return {0, 0, 0};
 
   uint8_t sled_num = led_map[ansi_iso][i];
@@ -233,14 +178,15 @@ void Raise::syncLeds() {
   if (!isLEDChanged)
     return;
 
+  // left and right sides
   for(int i = 0; i < LED_BANKS; i ++)
   {
       leftHand.sendLEDData();
       rightHand.sendLEDData();
   }
 
-  // show on the huble LED the same colour as the firsts led on left side
-  showAnalogRGB( {leftHand.ledData.leds[0].r, leftHand.ledData.leds[0].g, leftHand.ledData.leds[0].b});
+  // huble
+  updateHubleLED();
 
   isLEDChanged = false;
 }
