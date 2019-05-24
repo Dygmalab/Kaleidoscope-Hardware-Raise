@@ -122,64 +122,6 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   static constexpr uint8_t led_count = left_keys + right_keys + left_underglow + right_underglow + huble_leds;
 
 
-    // these are zero indexed led numbers from sled matrix
-    // maps rows and columns to the keyboard led number (0->LED_COUNT-1)
-    // 19 is missing for ANSI
-    static constexpr uint8_t key_led_map[2][5][16] = {
-      {
-        // ISO
-        {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+left_keys, 5+left_keys, 4+left_keys, 3+left_keys, 2+left_keys, 1+left_keys, 0+left_keys},
-        {7,  8,  9,  10, 11, 12, XX, XX,      14+left_keys, 13+left_keys, 12+left_keys, 11+left_keys, 10+left_keys, 9+left_keys, 8+left_keys, 7 +left_keys},
-        {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+left_keys, 20+left_keys, 19+left_keys, 18+left_keys, 17+left_keys, 16+left_keys, 15 +left_keys},
-        {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+left_keys, 26+left_keys, 25+left_keys, 24+left_keys, 23+left_keys, 22 +left_keys}, // ISO
-        {26, 27, 28, 29, 30, XX, 31, 32,      35+left_keys, 34+left_keys, 33+left_keys, 32+left_keys, 31+left_keys, 30+left_keys, 29+left_keys, 28+left_keys}, 
-      },
-      {
-        // ANSI
-        {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+left_keys, 5+left_keys, 4+left_keys, 3+left_keys, 2+left_keys, 1+left_keys, 0+left_keys},
-        {7,  8,  9,  10, 11, 12, XX, XX,      14+left_keys, 13+left_keys, 12+left_keys, 11+left_keys, 10+left_keys, 9+left_keys, 8+left_keys, 7 +left_keys},
-        {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+left_keys, 20+left_keys, 19+left_keys, 18+left_keys, 17+left_keys, 16+left_keys, 15 +left_keys},
-        {19, XX, 21, 22, 23, 24, 25, XX,      XX, XX,   27+left_keys, 26+left_keys, 25+left_keys, 24+left_keys, 23+left_keys, 22 +left_keys}, // ANSI
-        {26, 27, 28, 29, 30, XX, 31, 32,      35+left_keys, 34+left_keys, 33+left_keys, 32+left_keys, 31+left_keys, 30+left_keys, 29+left_keys, 28+left_keys}, 
-        }
-    };
-
-    // maps keyboard led number (0->LED_COUNT-1) to the SLED led number (0-LPH-1 on left side  and LPH to LPH*2-1 on the right side)
-    // LPH comes from keyboardioscanner.h - leds per hand = 72 defined by the size of the buffer used to transfer data to sides
-    static constexpr uint8_t led_map[2][led_count] = {
-      // ISO
-      {
-        // left side - 33 keys includes LP
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
-
-        // right side - 36 keys includes LP
-        0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 7+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 15+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH,
-        20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
-
-        // left under glow - 30
-        34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-
-        // right underglow - 32
-        34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH,
-        52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
-      },
-      // ANSI
-      {
-        // left side - 32 keys includes LP: key 19 is missing for ANSI layout
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, XX, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 68, 69,
-
-        // right side - 36 keys includes LP
-        0+LPH, 1+LPH, 2+LPH, 3+LPH, 4+LPH, 5+LPH, 6+LPH, 15+LPH, 8+LPH, 9+LPH, 10+LPH, 11+LPH, 12+LPH, 13+LPH, 14+LPH, 7+LPH, 16+LPH, 17+LPH, 18+LPH, 19+LPH,
-        20+LPH, 21+LPH, 22+LPH, 23+LPH, 24+LPH, 25+LPH, 26+LPH, 27+LPH, 28+LPH, 29+LPH, 30+LPH, 31+LPH, 32+LPH, 33+LPH, 68+LPH, 69+LPH,
-
-        // left under glow - 30
-        34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-
-        // right underglow - 32
-        34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH,
-        52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
-      }
-    };
 
   void syncLeds(void);
   void setCrgbAt(byte row, byte col, cRGB color);
