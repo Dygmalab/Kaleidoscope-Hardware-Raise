@@ -12,6 +12,9 @@ namespace dygma {
 
 KeyboardioScanner Raise::leftHand(0);
 KeyboardioScanner Raise::rightHand(1);
+bool Raise::lastLeftOnline = false;
+bool Raise::lastRightOnline = false;
+
 bool Raise::isLEDChanged = true;
 uint8_t Raise::ansi_iso = ANSI;
 keydata_t Raise::leftHandMask;
@@ -154,8 +157,7 @@ void Raise::setup(void) {
   }
 
   KeyboardHardware.storage().get(settings_base_, settings);
-  leftHand.setKeyscanInterval(settings.keyscan);
-  rightHand.setKeyscanInterval(settings.keyscan);
+  initialiseSides();
  
   // for now get ANSI/ISO once at boot - will require sides to be plugged in at power
   uint8_t l_ansi_iso = leftHand.readANSI_ISO();
@@ -173,6 +175,13 @@ void Raise::setup(void) {
 
 }
 
+void Raise::initialiseSides()
+{
+  leftHand.setKeyscanInterval(settings.keyscan);
+  rightHand.setKeyscanInterval(settings.keyscan);
+  // force resync of LEDs
+  isLEDChanged = true;
+}
 
 // i is number from 0 -> LED_COUNT - 1
 void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
@@ -300,6 +309,15 @@ void Raise::readMatrix() {
             rightHandState.rows[2] ^= (1 << 0);
         }
   }
+
+  // if a side has just been replugged, initialse it
+  if(leftHand.online && !lastLeftOnline || rightHand.online && !lastRightOnline)
+    initialiseSides();
+
+  // store previous state of whether the sides are plugged in
+  lastLeftOnline = leftHand.online;
+  lastRightOnline = rightHand.online;
+
 }
 
 

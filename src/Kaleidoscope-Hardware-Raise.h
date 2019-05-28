@@ -225,10 +225,14 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   static uint8_t ansi_iso;
   static KeyboardioScanner leftHand;
   static KeyboardioScanner rightHand;
+  static bool lastLeftOnline;
+  static bool lastRightOnline;
+
   static cRGB hubleLED;
 
   static keydata_t leftHandMask;
   static keydata_t rightHandMask;
+  void initialiseSides();
 };
 }
 }
