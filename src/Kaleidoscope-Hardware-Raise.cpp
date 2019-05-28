@@ -333,12 +333,14 @@ void Raise::actOnMatrixScan() {
       // left
       keyState = (bitRead(previousLeftHandState.all, keynum) << 0) |
                  (bitRead(leftHandState.all, keynum) << 1);
-      handleKeyswitchEvent(Key_NoKey, row,  col, keyState);
+      if(keyState)
+        handleKeyswitchEvent(Key_NoKey, row,  col, keyState);
 
       // right
       keyState = (bitRead(previousRightHandState.all, keynum) << 0) |
                  (bitRead(rightHandState.all, keynum) << 1);
-      handleKeyswitchEvent(Key_NoKey, row, (15 - col), keyState);
+      if(keyState)
+        handleKeyswitchEvent(Key_NoKey, row, (15 - col), keyState);
     }
   }
 }
