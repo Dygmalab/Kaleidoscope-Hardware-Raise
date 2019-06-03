@@ -221,7 +221,9 @@ class Raise: public kaleidoscope::Hardware<Raise> {
 
  private:
   static uint16_t settings_base_;
-  static bool isLEDChanged;
+  static bool isLEDChangedHuble;
+  static uint8_t isLEDChangedLeft[LED_BANKS];
+  static uint8_t isLEDChangedRight[LED_BANKS];
   static uint8_t ansi_iso;
   static KeyboardioScanner leftHand;
   static KeyboardioScanner rightHand;

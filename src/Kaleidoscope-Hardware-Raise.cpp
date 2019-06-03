@@ -14,8 +14,9 @@ KeyboardioScanner Raise::leftHand(0);
 KeyboardioScanner Raise::rightHand(1);
 bool Raise::lastLeftOnline = false;
 bool Raise::lastRightOnline = false;
-
-bool Raise::isLEDChanged = true;
+uint8_t Raise::isLEDChangedLeft[LED_BANKS];
+uint8_t Raise::isLEDChangedRight[LED_BANKS];
+bool Raise::isLEDChangedHuble;
 uint8_t Raise::ansi_iso = ANSI;
 keydata_t Raise::leftHandMask;
 keydata_t Raise::rightHandMask;
@@ -169,8 +170,14 @@ void Raise::initialiseSides()
 {
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
-  // force resync of LEDs
-  isLEDChanged = true;
+
+  // force resync of all LEDs
+  isLEDChangedHuble = true;
+  for(int i = 0; i < LED_BANKS; i ++)
+  {
+      isLEDChangedLeft[i] = true;
+      isLEDChangedRight[i] = true;
+  }
 }
 
 // i is number from 0 -> LED_COUNT - 1
@@ -183,7 +190,7 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
   // huble LED
   if(i == led_count - 1)
   {
-    isLEDChanged |= !(hubleLED.r == crgb.r && hubleLED.g == crgb.g && hubleLED.b == crgb.b);
+    isLEDChangedHuble |= !(hubleLED.r == crgb.r && hubleLED.g == crgb.g && hubleLED.b == crgb.b);
     hubleLED = crgb;
     return;
   }
@@ -193,12 +200,12 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
   if( sled_num < LPH) {
     cRGB oldColor = leftHand.ledData.leds[sled_num];
     leftHand.ledData.leds[sled_num] = crgb;
-    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
+    isLEDChangedLeft[uint8_t(sled_num / 8)] |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
   }
   else if( sled_num < 2 * LPH) {
-    cRGB oldColor = rightHand.ledData.leds[sled_num-LPH];
-    rightHand.ledData.leds[sled_num - LPH] = crgb;
-    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
+    cRGB oldColor = rightHand.ledData.leds[sled_num - LPH];
+    rightHand.ledData.leds[ sled_num - LPH ] = crgb;
+    isLEDChangedRight[uint8_t((sled_num - LPH) / 8)] |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
   } else {
     // TODO(anyone):
     // how do we want to handle debugging assertions about crazy user
@@ -234,20 +241,29 @@ cRGB Raise::getCrgbAt(uint8_t i) {
 }
 
 void Raise::syncLeds() {
-  if (!isLEDChanged)
-    return;
 
   // left and right sides
-  for(int i = 0; i < LED_BANKS; i ++)
+  for(uint8_t i = 0; i < LED_BANKS; i ++)
   {
-      leftHand.sendLEDData();
-      rightHand.sendLEDData();
+      // only send the banks that have changed - try to improve jitter performance
+      if(isLEDChangedLeft[i])
+      {
+          leftHand.sendLEDBank(i);
+          isLEDChangedLeft[i] = false;
+      }
+      if(isLEDChangedRight[i])
+      {
+          rightHand.sendLEDBank(i);
+          isLEDChangedRight[i] = false;
+      }
   }
 
   // huble
-  updateHubleLED();
-
-  isLEDChanged = false;
+  if(isLEDChangedHuble)
+  {
+      updateHubleLED();
+      isLEDChangedHuble = false;
+  }
 }
 
 boolean Raise::ledPowerFault() {
