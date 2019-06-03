@@ -191,13 +191,13 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
   // get the SLED index
   uint8_t sled_num = led_map[ansi_iso][i];
   if( sled_num < LPH) {
-    cRGB oldColor = getCrgbAt(sled_num);
-    leftHand.ledData.leds[ sled_num ] = crgb;
+    cRGB oldColor = leftHand.ledData.leds[sled_num];
+    leftHand.ledData.leds[sled_num] = crgb;
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
   }
   else if( sled_num < 2 * LPH) {
-    cRGB oldColor = getCrgbAt(sled_num);
-    rightHand.ledData.leds[ sled_num - LPH ] = crgb;
+    cRGB oldColor = rightHand.ledData.leds[sled_num-LPH];
+    rightHand.ledData.leds[sled_num - LPH] = crgb;
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
   } else {
     // TODO(anyone):
