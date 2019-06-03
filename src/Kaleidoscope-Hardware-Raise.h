@@ -119,7 +119,7 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   static constexpr uint8_t left_underglow   = 30;
   static constexpr uint8_t right_underglow  = 32;
   static constexpr uint8_t huble_leds       = 1;
-  static constexpr uint8_t led_count = left_keys + right_keys + left_underglow + right_underglow + huble_leds;
+  static constexpr uint8_t led_count = left_keys + right_keys + left_underglow + right_underglow + huble_leds; // 131 + 1 for the huble
 
 
 

@@ -30,26 +30,16 @@ Raise::settings_t Raise::settings = {
 // these are zero indexed led numbers from sled matrix
 // maps rows and columns to the keyboard led number (0->LED_COUNT-1)
 // 19 is missing for ANSI
-static constexpr uint8_t key_led_map[2][5][16] = {
-  {
-    // ISO
+static constexpr uint8_t key_led_map[5][16] = {
+    // ISO & ANSI (ANSI has no LED at 20, but this key can never be pressed so we can have just one map).
     {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LKEY, 5+LKEY, 4+LKEY, 3+LKEY, 2+LKEY, 1+LKEY, 0+LKEY},
     {7,  8,  9,  10, 11, 12, XX, XX,      14+LKEY, 13+LKEY, 12+LKEY, 11+LKEY, 10+LKEY, 9+LKEY, 8+LKEY, 7 +LKEY},
     {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LKEY, 20+LKEY, 19+LKEY, 18+LKEY, 17+LKEY, 16+LKEY, 15 +LKEY},
-    {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LKEY, 26+LKEY, 25+LKEY, 24+LKEY, 23+LKEY, 22 +LKEY}, // ISO
+    {19, 20, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LKEY, 26+LKEY, 25+LKEY, 24+LKEY, 23+LKEY, 22 +LKEY},
     {26, 27, 28, 29, 30, XX, 31, 32,      35+LKEY, 34+LKEY, 33+LKEY, 32+LKEY, 31+LKEY, 30+LKEY, 29+LKEY, 28+LKEY}, 
-  },
-  {
-    // ANSI
-    {0,  1,  2,  3,  4,  5,  6,  XX,      XX,   6+LKEY, 5+LKEY, 4+LKEY, 3+LKEY, 2+LKEY, 1+LKEY, 0+LKEY},
-    {7,  8,  9,  10, 11, 12, XX, XX,      14+LKEY, 13+LKEY, 12+LKEY, 11+LKEY, 10+LKEY, 9+LKEY, 8+LKEY, 7 +LKEY},
-    {13, 14, 15, 16, 17, 18, XX, XX,      XX,   21+LKEY, 20+LKEY, 19+LKEY, 18+LKEY, 17+LKEY, 16+LKEY, 15 +LKEY},
-    {19, XX, 21, 22, 23, 24, 25, XX,      XX, XX,   27+LKEY, 26+LKEY, 25+LKEY, 24+LKEY, 23+LKEY, 22 +LKEY}, // ANSI
-    {26, 27, 28, 29, 30, XX, 31, 32,      35+LKEY, 34+LKEY, 33+LKEY, 32+LKEY, 31+LKEY, 30+LKEY, 29+LKEY, 28+LKEY}, 
-    }
 };
 
-// maps keyboard led number (0->LED_COUNT-1) to the SLED led number (0-LPH-1 on left side  and LPH to LPH*2-1 on the right side)
+// maps keyboard led number (0->LED_COUNT-1) to the SLED led number (0->LPH-1 on left side  and LPH to LPH*2-1 on the right side)
 // LPH comes from keyboardioscanner.h - leds per hand = 72 defined by the size of the buffer used to transfer data to sides
 static constexpr uint8_t led_map[2][Raise::led_count] = {
   // ISO
@@ -66,7 +56,7 @@ static constexpr uint8_t led_map[2][Raise::led_count] = {
 
     // right underglow - 32
     34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH,
-    52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
+    52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH, XX, // last one is the Huble, never send to SLED
   },
   // ANSI
   {
@@ -82,7 +72,7 @@ static constexpr uint8_t led_map[2][Raise::led_count] = {
 
     // right underglow - 32
     34+LPH, 35+LPH, 36+LPH, 37+LPH, 38+LPH, 39+LPH, 40+LPH, 41+LPH, 42+LPH, 43+LPH, 44+LPH, 45+LPH, 46+LPH, 47+LPH, 48+LPH, 49+LPH, 50+LPH, 51+LPH,
-    52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH,
+    52+LPH, 53+LPH, 54+LPH, 55+LPH, 56+LPH, 57+LPH, 58+LPH, 59+LPH, 60+LPH, 61+LPH, 62+LPH, 63+LPH, 64+LPH, 65+LPH, XX, // last one is the Huble, never send to SLED
   }
 };
 
@@ -218,12 +208,12 @@ void Raise::setCrgbAt(uint8_t i, cRGB crgb) {
 
 // sets LED given row and col
 void Raise::setCrgbAt(byte row, byte col, cRGB color) {
-  setCrgbAt(key_led_map[ansi_iso][row][col], color);
+  setCrgbAt(key_led_map[row][col], color);
 }
 
 // returns keyboard LED index
 uint8_t Raise::getLedIndex(byte row, byte col) {
-  return key_led_map[ansi_iso][row][col];
+  return key_led_map[row][col];
 }
 
 // i is number from 0 -> LED_COUNT - 1
