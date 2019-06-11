@@ -14,6 +14,7 @@ KeyboardioScanner Raise::leftHand(0);
 KeyboardioScanner Raise::rightHand(1);
 bool Raise::lastLeftOnline = false;
 bool Raise::lastRightOnline = false;
+bool Raise::sidePower = false;
 uint8_t Raise::isLEDChangedLeft[LED_BANKS];
 uint8_t Raise::isLEDChangedRight[LED_BANKS];
 bool Raise::isLEDChangedHuble;
@@ -90,11 +91,15 @@ Raise::Raise(void) {
 
 }
 
-void Raise::enableScannerPower(void) {
-    pinMode(SIDE_POWER, OUTPUT);
+void Raise::enableSidePower(void) {
     digitalWrite(SIDE_POWER, HIGH);
+    sidePower = true;
 }
 
+void Raise::disableSidePower(void) {
+    digitalWrite(SIDE_POWER, LOW);
+    sidePower = false;
+}
 
 void Raise::setup(void) {
   // first set all pins to outputs and low - EMC considerations
@@ -112,7 +117,7 @@ void Raise::setup(void) {
   }
 
   pinMode(SIDE_POWER, OUTPUT);
-  digitalWrite(SIDE_POWER, LOW);
+  disableSidePower();
 
   // arduino zero analogWrite(255) isn't fully on as its actually working with a 16bit counter and the mapping is a bit shift.
   // so change to 16 bit resolution to avoid the mapping and do the mapping ourselves in updateHubleLED() to ensure LEDs can be
@@ -124,7 +129,7 @@ void Raise::setup(void) {
   //    updateHubleLED({100,0,0});
 
   delay(10);
-  enableScannerPower();
+  enableSidePower();
   delay(500); // wait for sides to power up and finish bootloader
 
   // Consider not doing this until 30s after keyboard
@@ -506,6 +511,17 @@ void Raise::setKeyscanInterval(uint8_t interval) {
   KeyboardHardware.storage().commit();
   rightHand.setKeyscanInterval(interval);
   leftHand.setKeyscanInterval(interval);
+}
+
+uint8_t Raise::getSidePower() {
+  return sidePower;
+}
+
+void Raise::setSidePower(uint8_t power) {
+    if(power)
+        enableSidePower();
+    else
+        disableSidePower();
 }
 
 }

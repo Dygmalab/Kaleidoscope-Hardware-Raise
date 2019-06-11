@@ -23,7 +23,7 @@ namespace plugin {
 
 
 EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
-  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.ansi_iso\nhardware.joint\nhardware.keyscan")))
+  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_power\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.ansi_iso\nhardware.joint\nhardware.keyscan")))
     return EventHandlerResult::OK;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
@@ -32,6 +32,17 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
   if (strcmp_P(command + 9, PSTR("version")) == 0) {
       ::Focus.send("Dygma Raise");
   }
+
+  if (strcmp_P(command + 9, PSTR("side_power")) == 0)
+    if (::Focus.isEOL()) {
+      ::Focus.send(KeyboardHardware.getSidePower());
+      return EventHandlerResult::EVENT_CONSUMED;
+    } else {
+      uint8_t power;
+      ::Focus.read(power);
+      KeyboardHardware.setSidePower(power);
+      return EventHandlerResult::EVENT_CONSUMED;
+      }
 
   if (strcmp_P(command + 9, PSTR("side_ver")) == 0) {
       ::Focus.send("left:");

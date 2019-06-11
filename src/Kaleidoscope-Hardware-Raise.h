@@ -136,16 +136,19 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   void setup();
   void updateHubleLED();
   void enableHighPowerLeds(void);
-  void enableScannerPower(void);
+  void enableSidePower(void);
+  void disableSidePower(void);
   void rebootBootloader();
   /* focus calls */
   uint8_t leftVersion();
+  uint8_t getSidePower();
   uint8_t rightVersion();
   uint8_t leftSLEDVersion();
   uint8_t rightSLEDVersion();
   uint8_t readRightSLEDCurrent();
   uint8_t readLeftSLEDCurrent();
   void setSLEDCurrent(uint8_t);
+  void setSidePower(uint8_t);
   uint8_t readANSI_ISO();
   uint8_t readRightKeyscanInterval();
   uint8_t readLeftKeyscanInterval();
@@ -229,6 +232,7 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   static KeyboardioScanner rightHand;
   static bool lastLeftOnline;
   static bool lastRightOnline;
+  static bool sidePower;
 
   static cRGB hubleLED;
 
