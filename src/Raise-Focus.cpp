@@ -23,7 +23,7 @@ namespace plugin {
 
 
 EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
-  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_power\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.ansi_iso\nhardware.joint\nhardware.keyscan")))
+  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_power\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.layout\nhardware.joint\nhardware.keyscan")))
     return EventHandlerResult::OK;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
@@ -74,7 +74,7 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
       return EventHandlerResult::EVENT_CONSUMED;
       }
 
-  if (strcmp_P(command + 9, PSTR("ansi_iso")) == 0) {
+  if (strcmp_P(command + 9, PSTR("layout")) == 0) {
       ::Focus.send(KeyboardHardware.readANSI_ISO() == ANSI ? "ANSI" : "ISO");
       return EventHandlerResult::EVENT_CONSUMED;
       }
