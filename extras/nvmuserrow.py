@@ -13,7 +13,7 @@ class NVM(object):
             UR('bod33lev',  (13,8), 7),
             UR('bod33en',   (14,14), 1),
             UR('bod33act',  (16,15), 1),
-            UR('res3',      (24,17), 0x70),
+            UR('res3',      (24,17), 0x70),     # voltage reg BOD
             UR('wdtenable', (25,25), 0),
             UR('wdtalways', (26,26), 0),
             UR('wdtperiod', (30,27), 0xB),
@@ -21,7 +21,7 @@ class NVM(object):
             UR('wdtoffset', (38,35), 0xB),
             UR('wdtwen',    (39,39), 0),
             UR('bod33hyst', (40,40), 0),
-            UR('res4',      (41,41), 0),
+            UR('res4',      (41,41), 0),        # voltage reg BOD
             UR('res5',      (47,42), 63),
             UR('lock',      (63,48), 0xFFFF),
             ]
