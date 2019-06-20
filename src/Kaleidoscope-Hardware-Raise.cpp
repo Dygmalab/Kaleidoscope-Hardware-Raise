@@ -155,15 +155,6 @@ void Raise::setup(void) {
   KeyboardHardware.storage().get(settings_base_, settings);
   initialiseSides();
  
-  // for now get ANSI/ISO once at boot - will require sides to be plugged in at power
-  uint8_t l_ansi_iso = leftHand.readANSI_ISO();
-  uint8_t r_ansi_iso = rightHand.readANSI_ISO();
-
-  // setup ansi_iso variable, this will affect led mapping - defaults to ISO if nothing reported
-  if(l_ansi_iso == ANSI || r_ansi_iso == ANSI)
-    ansi_iso = ANSI;
-  else 
-    ansi_iso = ISO;
 
   #ifdef RAISE_WATCHDOG
   int countdownMS = Watchdog.enable(500); // milliseconds. 100 stops serial print from working...
@@ -173,8 +164,19 @@ void Raise::setup(void) {
 
 void Raise::initialiseSides()
 {
+  // key scan interval from eeprom
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
+
+  // get ANSI/ISO once at boot - will require sides to be plugged in at power
+  uint8_t l_ansi_iso = leftHand.readANSI_ISO();
+  uint8_t r_ansi_iso = rightHand.readANSI_ISO();
+
+  // setup ansi_iso variable, this will affect led mapping - defaults to ISO if nothing reported
+  if(l_ansi_iso == ANSI || r_ansi_iso == ANSI)
+    ansi_iso = ANSI;
+  else 
+    ansi_iso = ISO;
 
   // force resync of all LEDs
   isLEDChangedHuble = true;
