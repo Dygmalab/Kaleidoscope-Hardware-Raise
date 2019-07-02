@@ -140,18 +140,20 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   void disableSidePower(void);
   void rebootBootloader();
   /* focus calls */
-  uint8_t leftVersion();
   uint8_t getSidePower();
+  uint8_t leftCRCErrors();
+  uint8_t rightCRCErrors();
+  uint8_t leftVersion();
   uint8_t rightVersion();
   uint8_t leftSLEDVersion();
   uint8_t rightSLEDVersion();
-  uint8_t readRightSLEDCurrent();
-  uint8_t readLeftSLEDCurrent();
+  uint8_t rightSLEDCurrent();
+  uint8_t leftSLEDCurrent();
   void setSLEDCurrent(uint8_t);
   void setSidePower(uint8_t);
   uint8_t readANSI_ISO();
-  uint8_t readRightKeyscanInterval();
-  uint8_t readLeftKeyscanInterval();
+  uint8_t rightKeyscanInterval();
+  uint8_t leftKeyscanInterval();
   void setKeyscanInterval(uint8_t);
   uint16_t readJoint();
 

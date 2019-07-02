@@ -263,6 +263,7 @@ void Raise::syncLeds() {
           rightHand.sendLEDBank(i);
           isLEDChangedRight[i] = false;
       }
+      //delayMicroseconds(10);
   }
 
   // huble
@@ -326,6 +327,13 @@ void Raise::readMatrix() {
   // if a side has just been replugged, initialse it
   if(leftHand.online && !lastLeftOnline || rightHand.online && !lastRightOnline)
     initialiseSides();
+
+  // if a side has just been unpluggerd, wipe its state
+  if(!leftHand.online && lastLeftOnline)
+    leftHandState.all = 0;
+
+  if(!rightHand.online && lastRightOnline)
+    rightHandState.all = 0;
 
   // store previous state of whether the sides are plugged in
   lastLeftOnline = leftHand.online;
@@ -482,12 +490,20 @@ uint8_t Raise::leftSLEDVersion() {
     return leftHand.readSLEDVersion();
 }
 
-uint8_t Raise::readLeftSLEDCurrent() {
+uint8_t Raise::leftSLEDCurrent() {
     return leftHand.readSLEDCurrent();
 }
 
-uint8_t Raise::readRightSLEDCurrent() {
+uint8_t Raise::rightSLEDCurrent() {
     return rightHand.readSLEDCurrent();
+}
+
+uint8_t Raise::leftCRCErrors() {
+    return leftHand.crc_errors;
+}
+
+uint8_t Raise::rightCRCErrors() {
+    return rightHand.crc_errors;
 }
 
 uint8_t Raise::readANSI_ISO() {
@@ -499,11 +515,11 @@ void Raise::setSLEDCurrent(uint8_t current) {
     leftHand.setSLEDCurrent(current);
 }
 
-uint8_t Raise::readRightKeyscanInterval() {
+uint8_t Raise::rightKeyscanInterval() {
   return rightHand.readKeyscanInterval();
 }
 
-uint8_t Raise::readLeftKeyscanInterval() {
+uint8_t Raise::leftKeyscanInterval() {
   return leftHand.readKeyscanInterval();
 }
 
