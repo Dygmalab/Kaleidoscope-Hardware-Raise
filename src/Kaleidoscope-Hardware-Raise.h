@@ -156,6 +156,13 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   uint8_t leftKeyscanInterval();
   void setKeyscanInterval(uint8_t);
   uint16_t readJoint();
+  uint8_t flashLeftSide();
+  uint8_t flashRightSide();
+  uint8_t verifyLeftSide();
+  uint8_t verifyRightSide();
+
+  void enableWDT();
+  void disableWDT();
 
   void attachToHost();
   void detachFromHost();
@@ -241,6 +248,9 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   static keydata_t leftHandMask;
   static keydata_t rightHandMask;
   void initialiseSides();
+  void resetSides(void);
+  uint8_t flashSide(uint8_t addr);
+  uint8_t verifySide(uint8_t addr);
 };
 }
 }

@@ -1,6 +1,9 @@
+#include <Wire.h>
 #include <Kaleidoscope.h>
 #include <KeyboardioHID.h>
 #include <Kaleidoscope-EEPROM-Settings.h>
+#include <Side-Flasher.h>
+#include <KeyboardioHID.h>
 #define RAISE_WATCHDOG
 #ifdef RAISE_WATCHDOG
 #include <Adafruit_SleepyDog.h>
@@ -91,6 +94,15 @@ Raise::Raise(void) {
 
 }
 
+void Raise::resetSides() {
+    disableSidePower();
+    // also turn off i2c pins to stop attiny from getting enough current through i2c to stay on
+    pinMode(SCL, OUTPUT);
+    pinMode(SDA, OUTPUT);
+    digitalWrite(SCL, false);
+    digitalWrite(SDA, false);
+}
+
 void Raise::enableSidePower(void) {
     digitalWrite(SIDE_POWER, HIGH);
     sidePower = true;
@@ -157,9 +169,24 @@ void Raise::setup(void) {
  
 
   #ifdef RAISE_WATCHDOG
-  int countdownMS = Watchdog.enable(500); // milliseconds. 100 stops serial print from working...
+  enableWDT();
   #endif
 
+}
+
+
+void Raise::enableWDT()
+{
+#ifdef RAISE_WATCHDOG
+  int countdownMS = Watchdog.enable(500); // milliseconds. 100 stops serial print from working...
+#endif
+}
+
+void Raise::disableWDT()
+{
+#ifdef RAISE_WATCHDOG
+  Watchdog.disable();
+#endif
 }
 
 void Raise::initialiseSides()
@@ -328,7 +355,7 @@ void Raise::readMatrix() {
   if(leftHand.online && !lastLeftOnline || rightHand.online && !lastRightOnline)
     initialiseSides();
 
-  // if a side has just been unpluggerd, wipe its state
+  // if a side has just been unplugged, wipe its state
   if(!leftHand.online && lastLeftOnline)
     leftHandState.all = 0;
 
@@ -541,6 +568,60 @@ void Raise::setSidePower(uint8_t power) {
     else
         disableSidePower();
 }
+
+uint8_t Raise::flashLeftSide()
+{
+    return flashSide(LEFT_BOOT_ADDRESS);
+}
+
+uint8_t Raise::flashRightSide()
+{
+    return flashSide(RIGHT_BOOT_ADDRESS);
+}
+
+uint8_t Raise::verifyLeftSide()
+{
+    return verifySide(LEFT_BOOT_ADDRESS);
+}
+
+uint8_t Raise::verifyRightSide()
+{
+    return verifySide(RIGHT_BOOT_ADDRESS);
+}
+
+uint8_t Raise::flashSide(uint8_t addr) {
+  disableWDT(); 
+  resetSides(); // turns off SCL and SDA pins as well as power
+  kaleidoscope::hid::releaseAllKeys(); // set all keys off - prevent repeating enter syndrome
+  kaleidoscope::hid::sendKeyboardReport(); // send an empty report
+  delay(100);  // wait for power to drain before turning on
+  enableSidePower();
+  twi_init();
+  delay(100); // wait for side bootloader to be ready
+
+  int written = update_attiny(addr); // flash firmware to side
+  int result = run_command(addr, 0x03); // tell bootloader to execute app
+
+  enableWDT(); // re-enable WDT
+  return written;
+}
+uint8_t Raise::verifySide(uint8_t addr) {
+  disableWDT(); 
+  resetSides(); // turns off SCL and SDA pins as well as power
+  kaleidoscope::hid::releaseAllKeys(); // set all keys off - prevent repeating enter syndrome
+  kaleidoscope::hid::sendKeyboardReport(); // send an empty report
+  delay(100);  // wait for power to drain before turning on
+  enableSidePower();
+  twi_init();
+  delay(100); // wait for side bootloader to be ready
+
+  int firmware_verified = get_version(addr);
+  int result = run_command(addr, 0x03); // tell bootloader to execute app
+
+  enableWDT(); // re-enable WDT
+  return firmware_verified;
+}
+
 
 }
 }

@@ -23,7 +23,7 @@ namespace plugin {
 
 
 EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
-  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_power\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.layout\nhardware.joint\nhardware.keyscan\nhardware.crc_errors")))
+  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_power\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.layout\nhardware.joint\nhardware.keyscan\nhardware.crc_errors\nhardware.flash_left_side\nhardware.flash_right_side\nhardware.verify_left_side\nhardware.verify_right_side")))
     return EventHandlerResult::OK;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
@@ -31,7 +31,29 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
 
   if (strcmp_P(command + 9, PSTR("version")) == 0) {
       ::Focus.send("Dygma Raise");
+      return EventHandlerResult::EVENT_CONSUMED;
   }
+
+  if (strcmp_P(command + 9, PSTR("flash_left_side")) == 0) {
+      ::Focus.send(KeyboardHardware.flashLeftSide());
+      return EventHandlerResult::EVENT_CONSUMED;
+  }
+
+  if (strcmp_P(command + 9, PSTR("flash_right_side")) == 0) {
+      ::Focus.send(KeyboardHardware.flashRightSide());
+      return EventHandlerResult::EVENT_CONSUMED;
+  }
+
+  if (strcmp_P(command + 9, PSTR("verify_left_side")) == 0) {
+      ::Focus.send(KeyboardHardware.verifyLeftSide());
+      return EventHandlerResult::EVENT_CONSUMED;
+  }
+
+  if (strcmp_P(command + 9, PSTR("verify_right_side")) == 0) {
+      ::Focus.send(KeyboardHardware.verifyRightSide());
+      return EventHandlerResult::EVENT_CONSUMED;
+  }
+
 
   if (strcmp_P(command + 9, PSTR("side_power")) == 0)
     if (::Focus.isEOL()) {
