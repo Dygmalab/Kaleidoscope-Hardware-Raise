@@ -9,6 +9,9 @@
 #include <Adafruit_SleepyDog.h>
 #endif
 
+#define I2C_CLOCK_KHZ 200
+#define I2C_FLASH_CLOCK_KHZ 100 // flashing doesn't work reliably at higher clock speeds
+
 namespace kaleidoscope {
 namespace hardware {
 namespace dygma {
@@ -151,7 +154,7 @@ void Raise::setup(void) {
   rightHandState.all = 0;
 
   // initialise Wire of scanner - have to do this here to avoid problem with static object intialisation ordering
-  twi_init();
+  twi_init(I2C_CLOCK_KHZ);
   
   settings_base_ = ::EEPROMSettings.requestSlice(sizeof(settings));
 
@@ -591,34 +594,46 @@ uint8_t Raise::verifyRightSide()
 
 uint8_t Raise::flashSide(uint8_t addr) {
   disableWDT(); 
+  twi_disable();
   resetSides(); // turns off SCL and SDA pins as well as power
+  leftHandState.all = 0; // wipe key state for left and right
+  rightHandState.all = 0;
   kaleidoscope::hid::releaseAllKeys(); // set all keys off - prevent repeating enter syndrome
   kaleidoscope::hid::sendKeyboardReport(); // send an empty report
+
   delay(100);  // wait for power to drain before turning on
   enableSidePower();
-  twi_init();
+
+  twi_init(I2C_FLASH_CLOCK_KHZ);
   delay(100); // wait for side bootloader to be ready
 
   int written = update_attiny(addr); // flash firmware to side
   int result = run_command(addr, 0x03); // tell bootloader to execute app
 
   enableWDT(); // re-enable WDT
+  twi_init(I2C_CLOCK_KHZ);
   return written;
 }
 uint8_t Raise::verifySide(uint8_t addr) {
   disableWDT(); 
+  twi_disable();
   resetSides(); // turns off SCL and SDA pins as well as power
+  leftHandState.all = 0; // wipe key state for left and right
+  rightHandState.all = 0;
   kaleidoscope::hid::releaseAllKeys(); // set all keys off - prevent repeating enter syndrome
   kaleidoscope::hid::sendKeyboardReport(); // send an empty report
+
   delay(100);  // wait for power to drain before turning on
   enableSidePower();
-  twi_init();
+
+  twi_init(I2C_FLASH_CLOCK_KHZ);
   delay(100); // wait for side bootloader to be ready
 
   int firmware_verified = get_version(addr);
   int result = run_command(addr, 0x03); // tell bootloader to execute app
 
   enableWDT(); // re-enable WDT
+  twi_init(I2C_CLOCK_KHZ);
   return firmware_verified;
 }
 
