@@ -7,6 +7,9 @@
 #define ENDTRANS_DATA_NACK 3
 #define ENDTRANS_ERROR 4
 
+#define LEFT_BOOT_ADDRESS 0x50
+#define RIGHT_BOOT_ADDRESS 0x51
+
 void power_off_attiny();
 void power_on_attiny();
 int run_command(uint8_t address, uint8_t command);

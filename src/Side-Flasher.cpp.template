@@ -10,9 +10,6 @@
 #define firmware_length %d
 #define DELAY %d
 
-#define LEFT_BOOT_ADDRESS 0x50
-#define RIGHT_BOOT_ADDRESS 0x51
-
 uint16_t offsets[pages] = {%s};
 uint8_t firmware[firmware_length] PROGMEM = {%s};
 
