@@ -1,0 +1,3 @@
+[submodule "firmware-binaries"]
+	path = firmware-binaries
+	url = https://github.com/dygmalab/firmware-binaries
