@@ -1,0 +1,275 @@
+#include "crc16.h"
+#include <Side-Flasher.h>
+#include <Arduino.h>
+#include <Wire.h>
+
+#define page_size %d
+#define frame_size %d
+#define blank 0x%x
+#define pages %d
+#define firmware_length %d
+#define DELAY %d
+
+#define LEFT_BOOT_ADDRESS 0x50
+#define RIGHT_BOOT_ADDRESS 0x51
+
+uint16_t offsets[pages] = {%s};
+uint8_t firmware[firmware_length] PROGMEM = {%s};
+
+int run_command(uint8_t address, uint8_t command) {
+
+    Wire.beginTransmission(address);
+    Wire.write(command); // erase user space
+    Wire.write(0x00); // dummy end uint8_t
+    uint8_t result = Wire.endTransmission();
+    return result;
+}
+
+
+uint8_t read_crc16(uint8_t addr, uint8_t *version, uint16_t *crc16, uint16_t offset, uint16_t length) {
+    uint8_t result = 2;
+
+
+    SerialUSB.print("get CRC from: ");
+    SerialUSB.println(addr, HEX);
+
+    Wire.beginTransmission(addr);
+    Wire.write(0x06); // get version and CRC16
+    Wire.write(offset & 0xff); // addr (lo)
+    Wire.write(offset >> 8); // addr (hi)
+    Wire.write(length & 0xff); // len (lo)
+    Wire.write(length >> 8); // len (hi)
+
+    result = Wire.endTransmission(false);
+    if (result != 0) {
+        SerialUSB.println("didn't respond");
+        return result;
+    }
+
+    delay(100); // wait for cksum to be calculated - takes about 20ms
+
+    Wire.requestFrom(addr, (uint8_t) 3);
+    if (Wire.available() == 0) {
+    }
+    uint8_t v = Wire.read();
+    *version = v;
+    if (Wire.available() == 0) {
+        return 0xFF;
+    }
+    uint8_t crc16_lo = Wire.read();
+    if (Wire.available() == 0) {
+        return 0xFF;
+    }
+    uint8_t crc16_hi = Wire.read();
+    while (Wire.available()) {
+        uint8_t c = Wire.read();
+    }
+    *crc16 = (crc16_hi << 8) | crc16_lo;
+    return result;
+}
+
+int get_version (uint8_t addr) {
+
+    SerialUSB.print("Reading CRC16...");
+
+    // this here to resolve some weird I2C startup bug.
+    // usually in the RHS, get_version fails with the I2C master writing the address and the CRC request (0x06), 
+    // the CRC parameters are never written
+    // doing a read first seems to let things settle in a way that allows the right to respond correctly
+    Wire.requestFrom(addr, (uint8_t) 3);
+    while (Wire.available()) {
+        Wire.read(); // throw away the info, as cksum calculation request has yet to be issued.
+    }
+
+    uint8_t version;
+    uint16_t crc16;
+    int result = read_crc16(addr, &version, &crc16, offsets[0] + 4, firmware_length - 4) ;
+
+    SerialUSB.print("result ");
+    SerialUSB.println(result);
+
+    if (result != 0)
+        return -1;
+
+    SerialUSB.print("Version: ");
+    SerialUSB.println(version);
+    SerialUSB.print("Existing CRC16 of ");
+    SerialUSB.print(offsets[0] + 4);
+    SerialUSB.print("-");
+    SerialUSB.print(firmware_length-4,HEX);
+    SerialUSB.print(":");
+    SerialUSB.println(crc16, HEX);
+
+    return 0;
+}
+
+int erase_program(uint8_t addr) {
+
+    SerialUSB.println("Erasing");
+    Wire.beginTransmission(addr);
+    Wire.write(0x04); // erase user space
+    uint8_t result = Wire.endTransmission();
+    SerialUSB.print("result = ");
+    SerialUSB.println(result);
+
+    // wait for erase
+    delay(1000);
+
+    if (result != 0) {
+        return -1;
+    }
+    return 0;
+
+}
+
+int write_firmware(uint8_t addr) {
+
+    uint8_t result = 3;
+    uint8_t o = 0;
+
+    for (uint16_t i = 0; i < firmware_length; i += page_size) {
+        Wire.beginTransmission(addr);
+        Wire.write(0x1); // write page addr
+        Wire.write(offsets[o] & 0xff); // write page addr
+        Wire.write(offsets[o] >> 8);
+        result = Wire.endTransmission();
+        delay(DELAY);
+        // got something other than ACK. Start over.
+        if (result != 0) {
+            SerialUSB.println("Error setting the page address");
+            return -1;
+        }
+
+        // transmit each frame separately
+
+        for (uint8_t frame = 0; frame < page_size / frame_size; frame++) {
+            SerialUSB.print("offset ");
+            if(offsets[o] < 10)
+                SerialUSB.print("000");
+            else if(offsets[o] < 100)
+                SerialUSB.print("00");
+            else if(offsets[o] < 1000)
+                SerialUSB.print("0");
+            SerialUSB.print(offsets[o]);
+            SerialUSB.print(" frame ");
+            SerialUSB.print(frame);
+            SerialUSB.print(" ");
+
+            Wire.beginTransmission(addr);
+            Wire.write(0x2); // continue page
+            uint16_t crc16 = 0xffff;
+            for (uint8_t j = frame * frame_size; j < (frame + 1) * frame_size; j++) {
+                if (i + j < firmware_length) {
+                    uint8_t b = pgm_read_byte(&firmware[i + j]);
+                    Wire.write(b);
+                    if(b < 0x10)
+                        SerialUSB.print("0");
+                    SerialUSB.print(b, HEX);
+                    crc16 = _crc16_update(crc16, b);
+                } else {
+                    Wire.write(blank);
+                    crc16 = _crc16_update(crc16, blank);
+                }
+            }
+            // write the CRC16, little end first
+            Wire.write(crc16 & 0xff);
+            Wire.write(crc16 >> 8);
+            Wire.write(0x00); // dummy end uint8_t
+            result = Wire.endTransmission();
+            SerialUSB.print(" cksum ");
+            if(crc16 < 0x10)
+                SerialUSB.print("000");
+            else if(crc16 < 0x100)
+                SerialUSB.print("00");
+            else if(crc16 < 0x1000)
+                SerialUSB.print("0");
+            SerialUSB.println(crc16, HEX);
+            // got something other than NACK. Start over.
+            if (result != 3) {
+                SerialUSB.println("Error: Got something other than NACK");
+                return -1;
+            }
+            delay(DELAY);
+        }
+        o++;
+    }
+    return 0;
+}
+
+int verify_firmware(uint8_t addr) {
+    uint8_t result = 3;
+    // verify firmware
+    SerialUSB.println("## Verifying firmware installation");
+    while (result != 0) {
+        SerialUSB.print("CRC16: ");
+
+        uint8_t version;
+        uint16_t crc16;
+        // skip the first 4 uint8_ts, are they were probably overwritten by the reset vector preservation
+        result = read_crc16(addr, &version, &crc16, offsets[0] + 4, firmware_length - 4);
+
+        SerialUSB.println(result);
+
+        if (result != 0) {
+            delay(100);
+            continue;
+        }
+        SerialUSB.print("Version: ");
+        SerialUSB.println(version);
+        SerialUSB.print("CRC CRC16 of ");
+        SerialUSB.print(offsets[0] + 4, HEX);
+        SerialUSB.print("-");
+        SerialUSB.print(offsets[0] + firmware_length - 4, HEX);
+        SerialUSB.print(": ");
+        SerialUSB.println(crc16, HEX);
+
+        // calculate our own CRC16
+        uint16_t check_crc16 = 0xffff;
+        for (uint16_t i = 4; i < firmware_length; i++) {
+            check_crc16 = _crc16_update(check_crc16, pgm_read_byte(&firmware[i]));
+        }
+        if (crc16 != check_crc16) {
+            SerialUSB.print("CRC does not match ours: ");
+            SerialUSB.println(check_crc16, HEX);
+            return -1;
+        }
+        SerialUSB.println("CRC check: OK");
+    }
+    return 0;
+}
+
+uint8_t update_attiny(uint8_t addr) {
+    SerialUSB.println("Communicating");
+
+    int got_version = get_version(addr);
+    if (got_version == -1){
+        SerialUSB.println("couldn't get version");
+        return 0;
+    }
+
+    int erased = erase_program(addr);
+
+    if (erased == -1) {
+
+        SerialUSB.println("Erase failed.");
+        return 0;
+    }
+
+    int firmware_written = write_firmware(addr);
+    if(firmware_written == -1) {
+        SerialUSB.println("Firmware write failed.");
+        return 0;
+    }
+
+    int firmware_verified = verify_firmware(addr);
+    if(firmware_verified == -1) {
+        SerialUSB.println("Firmware verify failed");
+        return 0;
+    }
+
+    SerialUSB.println("Resetting ATTiny");
+    int result = run_command(addr, 0x03); // execute app
+    SerialUSB.println("Done!");
+
+    return 1;
+}

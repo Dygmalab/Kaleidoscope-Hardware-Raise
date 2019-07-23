@@ -1,14 +1,6 @@
 #ifndef SIDE_FLASHER
 #define SIDE_FLASHER
 
-#define page_size 64
-#define frame_size 16
-#define blank 0xff
-#define DELAY 1
-#define LEFT_BOOT_ADDRESS 0x50
-#define RIGHT_BOOT_ADDRESS 0x51
-
-
 #define ENDTRANS_SUCCESS 0
 #define ENDTRANS_DATA_TOO_LONG 1
 #define ENDTRANS_ADDR_NACK 2
