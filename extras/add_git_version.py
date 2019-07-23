@@ -26,7 +26,7 @@ template_file = os.path.join(dirname, '../src/Raise-Focus.cpp.template')
 template = open(template_file, 'r').read()
 c_file = os.path.join(dirname, '../src/Raise-Focus.cpp')
 
-git_versions = "fw: %s, core: %s, side: %s" % (firmware_commit, core_commit, side_commit)
+git_versions = "fw: %s core: %s side: %s" % (firmware_commit, core_commit, side_commit)
 print(git_versions)
 with open(c_file, 'w') as fh:
     fh.write(template % git_versions)
