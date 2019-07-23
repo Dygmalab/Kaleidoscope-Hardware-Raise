@@ -23,7 +23,7 @@ namespace plugin {
 
 
 EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
-  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_power\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.layout\nhardware.joint\nhardware.keyscan\nhardware.crc_errors\nhardware.flash_left_side\nhardware.flash_right_side\nhardware.verify_left_side\nhardware.verify_right_side")))
+  if (::Focus.handleHelp(command, PSTR("hardware.version\nhardware.side_power\nhardware.side_ver\nhardware.sled_ver\nhardware.sled_current\nhardware.layout\nhardware.joint\nhardware.keyscan\nhardware.crc_errors\nhardware.flash_left_side\nhardware.flash_right_side\nhardware.verify_left_side\nhardware.verify_right_side\nhardware.firmware")))
     return EventHandlerResult::OK;
 
   if (strncmp_P(command, PSTR("hardware."), 9) != 0)
@@ -31,6 +31,11 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
 
   if (strcmp_P(command + 9, PSTR("version")) == 0) {
       ::Focus.send("Dygma Raise");
+      return EventHandlerResult::EVENT_CONSUMED;
+  }
+
+  if (strcmp_P(command + 9, PSTR("firmware")) == 0) {
+      ::Focus.send("%s"); // filled in by ../extras/add_git_version.py
       return EventHandlerResult::EVENT_CONSUMED;
   }
 
