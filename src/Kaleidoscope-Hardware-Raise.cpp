@@ -147,9 +147,6 @@ void Raise::setup(void) {
   enableSidePower();
   delay(500); // wait for sides to power up and finish bootloader
 
-  // Consider not doing this until 30s after keyboard
-  // boot up, to make it easier to rescue things
-  // in case of power draw issues.
   leftHandState.all = 0;
   rightHandState.all = 0;
 
