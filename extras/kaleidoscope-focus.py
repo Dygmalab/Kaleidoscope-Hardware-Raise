@@ -37,8 +37,7 @@ class Commander (object):
 
         hadOutput = False
         with serial.Serial (args.port, 9600, timeout = 1) as ser:
-            ser.write (cmd)
-            ser.write ("\n")
+            ser.write (cmd + "\n")
             while True:
                 resultLine = ser.readline ()
 
