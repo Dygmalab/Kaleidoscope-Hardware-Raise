@@ -121,10 +121,7 @@ EventHandlerResult RaiseFocus::onFocusEvent(const char *command) {
   
   if (strcmp_P(command + 9, PSTR("keyscan")) == 0)
     if (::Focus.isEOL()) {
-      ::Focus.send("left:");
-      ::Focus.send(KeyboardHardware.leftKeyscanInterval());
-      ::Focus.send("\nright:");
-      ::Focus.send(KeyboardHardware.rightKeyscanInterval());
+      ::Focus.send(KeyboardHardware.getKeyscanInterval());
       return EventHandlerResult::EVENT_CONSUMED;
     } else {
       uint8_t keyscan;

@@ -152,8 +152,7 @@ class Raise: public kaleidoscope::Hardware<Raise> {
   void setSLEDCurrent(uint8_t);
   void setSidePower(uint8_t);
   uint8_t readANSI_ISO();
-  uint8_t rightKeyscanInterval();
-  uint8_t leftKeyscanInterval();
+  uint8_t getKeyscanInterval();
   void setKeyscanInterval(uint8_t);
   uint16_t readJoint();
   uint8_t flashLeftSide();

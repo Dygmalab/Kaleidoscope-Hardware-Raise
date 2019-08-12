@@ -542,12 +542,8 @@ void Raise::setSLEDCurrent(uint8_t current) {
     leftHand.setSLEDCurrent(current);
 }
 
-uint8_t Raise::rightKeyscanInterval() {
-  return rightHand.readKeyscanInterval();
-}
-
-uint8_t Raise::leftKeyscanInterval() {
-  return leftHand.readKeyscanInterval();
+uint8_t Raise::getKeyscanInterval() {
+  return settings.keyscan;
 }
 
 void Raise::setKeyscanInterval(uint8_t interval) {
