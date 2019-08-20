@@ -196,7 +196,7 @@ void Raise::initialiseSides()
   leftHand.setKeyscanInterval(settings.keyscan);
   rightHand.setKeyscanInterval(settings.keyscan);
 
-  // get ANSI/ISO once at boot - will require sides to be plugged in at power
+  // get ANSI/ISO at every side replug
   uint8_t l_ansi_iso = leftHand.readANSI_ISO();
   uint8_t r_ansi_iso = rightHand.readANSI_ISO();
 
@@ -347,7 +347,7 @@ void Raise::readMatrix() {
         }
   }
 
-  // if a side has just been replugged, initialse it
+  // if a side has just been replugged, initialise it
   if(leftHand.online && !lastLeftOnline || rightHand.online && !lastRightOnline)
     initialiseSides();
 
