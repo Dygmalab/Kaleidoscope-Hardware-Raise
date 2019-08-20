@@ -2,6 +2,7 @@
 #include <Kaleidoscope.h>
 #include <KeyboardioHID.h>
 #include <Kaleidoscope-EEPROM-Settings.h>
+#include <Kaleidoscope-LEDControl.h>
 #include <Side-Flasher.h>
 #include <KeyboardioHID.h>
 #define RAISE_WATCHDOG
@@ -205,13 +206,8 @@ void Raise::initialiseSides()
   else 
     ansi_iso = ISO;
 
-  // force resync of all LEDs
-  isLEDChangedHuble = true;
-  for(int i = 0; i < LED_BANKS; i ++)
-  {
-      isLEDChangedLeft[i] = true;
-      isLEDChangedRight[i] = true;
-  }
+  // get activated LED plugin to refresh
+  LEDControl.refreshAll();
 }
 
 // i is number from 0 -> LED_COUNT - 1
