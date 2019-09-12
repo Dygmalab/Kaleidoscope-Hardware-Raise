@@ -179,7 +179,7 @@ void Raise::setup(void) {
 void Raise::enableWDT()
 {
 #ifdef RAISE_WATCHDOG
-  int countdownMS = Watchdog.enable(500); // milliseconds. 100 stops serial print from working...
+  int countdownMS = Watchdog.enable(2000); // milliseconds. needs to be long for long EEPROM reads
 #endif
 }
 
