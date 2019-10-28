@@ -206,6 +206,15 @@ void Raise::initialiseSides()
   else 
     ansi_iso = ISO;
 
+  /*
+  if the neuron starts up with no sides connected, it will assume ISO.  This turns on an extra LED
+  (hardware LED 19 on left side). If an ANSI left is then plugged in, the keyboard will switch to ANSI,
+  but LED 19 can't get wiped because the ANSI LED map doesn't include this LED. It will be driven from
+  the SLED1735's memory with the same colour as before, which causes weird looking colours to come on
+  on other seemingly unrelated keys. So: on a replug, set LED 19 to off to be safe.
+  */
+  leftHand.ledData.leds[19] = {0,0,0};
+
   // get activated LED plugin to refresh
   LEDControl.refreshAll();
 }
